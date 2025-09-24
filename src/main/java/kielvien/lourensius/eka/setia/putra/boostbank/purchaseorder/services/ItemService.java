@@ -10,6 +10,8 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdateItemRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.ItemRepository;
 
 @Service
@@ -31,21 +33,36 @@ public class ItemService {
 		item.setDescription(request.getDescription());
 		item.setPrice(request.getPrice());
 		item.setCost(request.getCost());
-
 		itemRepository.save(item);
+		
 		return CreateItemResponse.builder().name(item.getName()).description(item.getDescription())
 				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 
-	public Items getUserById(int itemId) {
+	public Items getItemById(int itemId) {
 		return itemRepository.findById(itemId).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
 	}
 
 	public GetItemResponse findItem(int itemId) {
-		Items item = getUserById(itemId);
-		
+		Items item = getItemById(itemId);
+
 		return GetItemResponse.builder().name(item.getName()).description(item.getDescription()).price(item.getPrice())
 				.cost(item.getCost()).build();
+	}
+
+	@Transactional
+	public UpdateItemResponse updateItem(int itemId, UpdateItemRequest request) {
+		validationService.validate(request);
+		Items item = getItemById(itemId);
+		
+		item.setName(request.getName());
+		item.setDescription(request.getDescription());
+		item.setPrice(request.getPrice());
+		item.setCost(request.getCost());
+		itemRepository.save(item);
+		
+		return UpdateItemResponse.builder().name(item.getName()).description(item.getDescription())
+				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 }
