@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +27,7 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<CreateUserResponse> create(@RequestBody CreateUserRequest request) {
+	public WebResponse<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
 		CreateUserResponse response = userService.createUser(request);
 		return WebResponse.<CreateUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
@@ -37,5 +38,10 @@ public class UserController {
 		GetUserResponse response = userService.getUser(userid);
 		return WebResponse.<GetUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
+	}
+	
+	@PutMapping(path = "/update/{userid}", )
+	public WebResponse<UpdateUserResponse> updateUser(){
+		return null;
 	}
 }
