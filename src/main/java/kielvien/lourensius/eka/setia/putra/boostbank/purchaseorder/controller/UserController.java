@@ -13,6 +13,8 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Con
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetUserResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdateUserRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdateUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services.UserService;
 
@@ -29,6 +31,7 @@ public class UserController {
 	@PostMapping(path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
 		CreateUserResponse response = userService.createUser(request);
+
 		return WebResponse.<CreateUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
@@ -36,12 +39,17 @@ public class UserController {
 	@GetMapping(path = "/finduser/{userid}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<GetUserResponse> getUser(@PathVariable int userid) {
 		GetUserResponse response = userService.getUser(userid);
+
 		return WebResponse.<GetUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
-	
-	@PutMapping(path = "/update/{userid}", )
-	public WebResponse<UpdateUserResponse> updateUser(){
-		return null;
+
+	@PutMapping(path = "/update/{userid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<UpdateUserResponse> updateUser(@PathVariable int userid,
+			@RequestBody UpdateUserRequest request) {
+		UpdateUserResponse response = userService.updateUser(userid, request);
+
+		return WebResponse.<UpdateUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
