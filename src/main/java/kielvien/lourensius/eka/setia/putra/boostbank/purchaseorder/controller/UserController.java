@@ -1,6 +1,7 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,7 @@ public class UserController {
 
 	@GetMapping(path = "/finduser/{userid}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<GetUserResponse> getUser(@PathVariable int userid) {
-		GetUserResponse response = userService.getUser(userid);
+		GetUserResponse response = userService.findUser(userid);
 
 		return WebResponse.<GetUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
@@ -50,6 +51,14 @@ public class UserController {
 		UpdateUserResponse response = userService.updateUser(userid, request);
 
 		return WebResponse.<UpdateUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
+	}
+
+	@DeleteMapping(path = "/delete/{userid}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<Integer> deleteuser(@PathVariable int userid) {
+		Integer userIdDeleted = userService.deleteUser(userid);
+
+		return WebResponse.<Integer>builder().data(userIdDeleted).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
