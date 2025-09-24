@@ -1,11 +1,18 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services;
 
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.UserRepository;
 
 @Service
@@ -22,7 +29,7 @@ public class UserService {
 	@Transactional
 	public CreateUserResponse createUser(CreateUserRequest request) {
 		validationService.validate(request);
-		
+
 		User user = new User();
 		user.setFirstName(request.getFirstName());
 		user.setLastName(request.getLastName());
@@ -32,5 +39,13 @@ public class UserService {
 
 		return CreateUserResponse.builder().id(user.getId()).firstName(user.getFirstName()).lastName(user.getLastName())
 				.email(user.getEmail()).phone(user.getPhone()).build();
+	}
+
+	public GetUserResponse getUser(int id) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
+
+		return GetUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
+				.phone(user.getPhone()).email(user.getEmail()).build();
 	}
 }
