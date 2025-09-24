@@ -1,6 +1,7 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,6 +62,7 @@ public class UserControllerTest {
 
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
 						assertEquals("Kielvien", response.getData().getFirstName());
 						assertEquals("Lourensius Eka Setia Putra", response.getData().getLastName());
 						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
@@ -78,6 +80,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("firstName: cannot be null or empty", response.getDesc());
 					});
@@ -89,7 +92,8 @@ public class UserControllerTest {
 						WebResponse<CreateUserResponse> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
-
+						
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("firstName: cannot be null or empty", response.getDesc());
 					});
@@ -105,6 +109,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("lastName: cannot be null or empty", response.getDesc());
 					});
@@ -117,6 +122,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("lastName: cannot be null or empty", response.getDesc());
 					});
@@ -132,6 +138,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertTrue(response.getDesc().contains("email: cannot be null or empty")
 								|| response.getDesc().contains("email: pattern is invalid"));
@@ -145,6 +152,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertTrue(response.getDesc().contains("email: cannot be null or empty")
 								|| response.getDesc().contains("email: pattern is invalid"));
@@ -157,7 +165,8 @@ public class UserControllerTest {
 						WebResponse<CreateUserResponse> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
-
+						
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("email: pattern is invalid", response.getDesc());
 					});
@@ -173,6 +182,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertTrue(response.getDesc().contains("phone: cannot be null or empty")
 								|| response.getDesc().contains("phone: pattern is invalid"));
@@ -186,6 +196,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertTrue(response.getDesc().contains("phone: cannot be null or empty")
 								|| response.getDesc().contains("phone: pattern is invalid"));
@@ -199,6 +210,7 @@ public class UserControllerTest {
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
 
+						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("phone: pattern is invalid", response.getDesc());
 					});
@@ -218,6 +230,7 @@ public class UserControllerTest {
 
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
 						assertEquals("Kielvien", response.getData().getFirstName());
 						assertEquals("Lourensius Eka Setia Putra", response.getData().getLastName());
 						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
