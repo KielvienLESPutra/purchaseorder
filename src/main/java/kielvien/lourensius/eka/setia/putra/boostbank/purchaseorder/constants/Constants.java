@@ -4,7 +4,7 @@ public class Constants {
 	public static final String USER_SYSTEM = "SYSTEM";
 	
 	public enum statusCode {
-		OK("00", "SUCCESS"), BAD_REQUEST("01", "BAD REQUEST");
+		OK("00", "SUCCESS"), BAD_REQUEST("01", "BAD REQUEST"), NOT_FOUND("02","NOT FOUND");
 
 		private String code;
 		private String desc;
