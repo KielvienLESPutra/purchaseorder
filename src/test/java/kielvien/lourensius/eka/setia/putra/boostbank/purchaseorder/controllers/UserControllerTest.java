@@ -2,7 +2,9 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -200,6 +203,47 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("phone: pattern is invalid", response.getDesc());
 					});
+		}
+	}
+
+	@Nested
+	class getUserTest {
+
+		@Test
+		void success() throws Exception {
+			mocMvc.perform(get("/api/user/finduser/13").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<GetUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertEquals("Kielvien", response.getData().getFirstName());
+						assertEquals("Lourensius Eka Setia Putra", response.getData().getLastName());
+						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
+						assertEquals("085888888888", response.getData().getPhone());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(get("/api/user/finduser/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound()).andDo(result ->{
+						WebResponse<GetUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+						
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+					});
+		}
+
+		@Test
+		void failFormat() throws Exception {
+			mocMvc.perform(get("/api/user/finduser/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isBadRequest());
 		}
 	}
 }
