@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +25,18 @@ public class AuditTrail {
 
 	@Column(name = "updated_datetime")
 	private LocalDateTime  updatedDatetime;
+	
+	@PrePersist
+	private void onCreated() {
+		this.createdDatetime = LocalDateTime.now();
+		this.createdBy = Constants.USER_SYSTEM;
+		this.updatedDatetime = LocalDateTime.now();
+		this.updatedBy = Constants.USER_SYSTEM;
+	}
+	
+	@PreUpdate
+	private void onDeleted() {
+		this.updatedDatetime = LocalDateTime.now();
+		this.updatedBy = Constants.USER_SYSTEM;
+	}
 }
