@@ -40,17 +40,17 @@ public class UserService {
 				.email(user.getEmail()).phone(user.getPhone()).build();
 	}
 
-	public GetUserResponse findUser(int userid) {
-		User user = getUserById(userid);
+	public GetUserResponse findUser(int userId) {
+		User user = getUserById(userId);
 
 		return GetUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
 				.phone(user.getPhone()).email(user.getEmail()).build();
 	}
 
 	@Transactional
-	public UpdateUserResponse updateUser(int userid, UpdateUserRequest request) {
+	public UpdateUserResponse updateUser(int userId, UpdateUserRequest request) {
 		validationService.validate(request);
-		User user = getUserById(userid);
+		User user = getUserById(userId);
 
 		user.setFirstName(request.getFirstName());
 		user.setLastName(request.getLastName());

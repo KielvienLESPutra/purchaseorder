@@ -37,26 +37,26 @@ public class UserController {
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 
-	@GetMapping(path = "/finduser/{userid}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<GetUserResponse> getUser(@PathVariable int userid) {
-		GetUserResponse response = userService.findUser(userid);
+	@GetMapping(path = "/finduser/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<GetUserResponse> getUser(@PathVariable int userId) {
+		GetUserResponse response = userService.findUser(userId);
 
 		return WebResponse.<GetUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 
-	@PutMapping(path = "/update/{userid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<UpdateUserResponse> updateUser(@PathVariable int userid,
+	@PutMapping(path = "/update/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<UpdateUserResponse> updateUser(@PathVariable int userId,
 			@RequestBody UpdateUserRequest request) {
-		UpdateUserResponse response = userService.updateUser(userid, request);
+		UpdateUserResponse response = userService.updateUser(userId, request);
 
 		return WebResponse.<UpdateUserResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 
-	@DeleteMapping(path = "/delete/{userid}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<Integer> deleteuser(@PathVariable int userid) {
-		Integer userIdDeleted = userService.deleteUser(userid);
+	@DeleteMapping(path = "/delete/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<Integer> deleteuser(@PathVariable int userId) {
+		Integer userIdDeleted = userService.deleteUser(userId);
 
 		return WebResponse.<Integer>builder().data(userIdDeleted).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
