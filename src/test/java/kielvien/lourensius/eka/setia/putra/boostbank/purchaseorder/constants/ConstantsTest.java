@@ -1,0 +1,9 @@
+package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants;
+
+public class ConstantsTest {
+	public static String exceedString = "5kl8jGM1gFhnDL0lTIDuAUusA0ZwMYJlkd317GeDs5JIrClVD2JzDG7vo7s1pOwFosHP7GtBjqdm4JJCHHiBfnY2cXZdWT2yhfet1"
+			+ "jElE9WdQ763cW9kdgzv2SVmIKPxzNqgg4pga92KV0ivP7JlRSoB0vfg09dLgV9H15RR5RS3G6yD6GsHUJCakBHPVW89sJwxDxLC33ZoQzSV4HwnsARu1T0WIgyGgUPh"
+			+ "iAt0dc3s69ycmSy9EOljHtlYcX0EJzIgmKDwtXd1t88tH3exlTNNhpnXVKmPGFdESNxFaNfZJlhIgjLuHrmQimaND9tQA2iFOCbexTItIfltoVC4uow2WctF67uKAxw"
+			+ "ABIWZbMYZCd1EuuXIrOJ6LmXhvxno3BT3MLBZ3UFVyV1b0Zu3zpkOXFEvgdkigZhnXgXIfT68BHTtY1FIzVwBcEuMPL6VVCKvezv6PXH5YaWktsR8Tkc5dpg2048yq9"
+			+ "IoFmfU9mQ2na0dAf6SXgXIfT68t88tH3exlTNN";
+}

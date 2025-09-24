@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetUserResponse;
@@ -100,6 +101,19 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("firstName: cannot be null or empty", response.getDesc());
 					});
+			
+			request.setFirstName(ConstantsTest.exceedString);
+			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("firstName: character cannot more then 500", response.getDesc());
+					});
 		}
 
 		@Test
@@ -128,6 +142,19 @@ public class UserControllerTest {
 						assertNull(response.getData());
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("lastName: cannot be null or empty", response.getDesc());
+					});
+			
+			request.setLastName(ConstantsTest.exceedString);
+			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("lastName: character cannot more then 500", response.getDesc());
 					});
 		}
 
@@ -433,7 +460,7 @@ public class UserControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/user/delete/18").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(delete("/api/user/delete/23").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -442,7 +469,7 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(18, response.getData());
+						assertEquals(23, response.getData());
 					});
 		}
 
