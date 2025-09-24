@@ -52,7 +52,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void success() throws Exception {
+		void successCreate() throws Exception {
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -221,7 +221,7 @@ public class UserControllerTest {
 	class getUserTest {
 
 		@Test
-		void success() throws Exception {
+		void successGet() throws Exception {
 			mocMvc.perform(get("/api/user/finduser/13").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<GetUserResponse> response = objectMapper
@@ -256,6 +256,14 @@ public class UserControllerTest {
 		void failFormat() throws Exception {
 			mocMvc.perform(get("/api/user/finduser/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
+		}
+	}
+	
+	@Nested
+	class updateUserTest {
+		@Test
+		void uccessUpdate() throws Exception {
+			
 		}
 	}
 }
