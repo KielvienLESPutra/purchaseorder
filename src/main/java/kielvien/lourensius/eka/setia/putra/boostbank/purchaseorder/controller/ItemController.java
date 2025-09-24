@@ -1,8 +1,15 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services.ItemService;
 
 @RestController
@@ -14,5 +21,12 @@ public class ItemController {
 	public ItemController(ItemService itemService) {
 		this.itemService = itemService;
 	}
-	
+
+	@PostMapping(path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<CreateItemResponse> createItem(@RequestBody CreateItemRequest request) {
+		CreateItemResponse response = itemService.createItem(request);
+
+		return WebResponse.<CreateItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
+	}
 }
