@@ -40,9 +40,8 @@ public class UserService {
 				.email(user.getEmail()).phone(user.getPhone()).build();
 	}
 
-	public GetUserResponse getUser(int id) {
-		User user = userRepository.findById(id).orElseThrow(
-				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
+	public GetUserResponse findUser(int userid) {
+		User user = getUserById(userid);
 
 		return GetUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
 				.phone(user.getPhone()).email(user.getEmail()).build();
@@ -51,9 +50,7 @@ public class UserService {
 	@Transactional
 	public UpdateUserResponse updateUser(int userid, UpdateUserRequest request) {
 		validationService.validate(request);
-		
-		User user = userRepository.findById(userid).orElseThrow(
-				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
+		User user = getUserById(userid);
 
 		user.setFirstName(request.getFirstName());
 		user.setLastName(request.getLastName());
@@ -63,5 +60,18 @@ public class UserService {
 
 		return UpdateUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
 				.phone(user.getPhone()).email(user.getEmail()).build();
+	}
+
+	public User getUserById(int userId) {
+		return userRepository.findById(userId).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
+	}
+
+	@Transactional
+	public int deleteUser(int userId) {
+		User user = getUserById(userId);
+
+		userRepository.delete(user);
+		return user.getId();
 	}
 }
