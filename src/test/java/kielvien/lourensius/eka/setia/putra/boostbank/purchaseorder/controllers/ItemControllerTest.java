@@ -1,12 +1,28 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
@@ -18,4 +34,154 @@ public class ItemControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Nested
+	class createItem {
+		private CreateItemRequest request;
+
+		@BeforeEach
+		void setup() {
+			request = new CreateItemRequest();
+			request.setName("Barang a");
+			request.setDescription("Barang a grade 1");
+			request.setPrice(10000);
+			request.setCost(5000);
+		}
+
+		@Test
+		void successCreate() throws Exception {
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isOk()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals("Barang a", response.getData().getName());
+						assertEquals("Barang a grade 1", response.getData().getDescription());
+						assertEquals(10000, response.getData().getPrice());
+						assertEquals(5000, response.getData().getCost());
+					});
+		}
+		
+		@Test
+		void failName() throws Exception {
+			request.setName(null);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+			
+			request.setName("");
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+			
+			request.setName(ConstantsTest.exceedString);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: character cannot more then 500", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+		
+
+		@Test
+		void failDesc() throws Exception {
+			request.setDescription(null);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+			
+			request.setDescription("");
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+			
+			request.setDescription(ConstantsTest.exceedString);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: character cannot more then 500", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+		
+		@Test
+		void failPrice() throws Exception {
+			request.setPrice(0);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("price: cannot less then 1", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+		
+		@Test
+		void failCost() throws Exception {
+			request.setCost(0);
+			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("cost: cannot less then 1", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+	}
 }
