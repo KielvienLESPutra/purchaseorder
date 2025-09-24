@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -293,7 +294,7 @@ public class UserControllerTest {
 						assertEquals("085871321234", response.getData().getPhone());
 					});
 		}
-		
+
 		@Test
 		void failNotFound() throws Exception {
 			mocMvc.perform(put("/api/user/update/999").contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -308,7 +309,7 @@ public class UserControllerTest {
 						assertNull(response.getData());
 					});
 		}
-		
+
 		@Test
 		void failLastName() throws Exception {
 			request.setLastName("");
@@ -424,6 +425,45 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("phone: pattern is invalid", response.getDesc());
 					});
+		}
+	}
+
+	@Nested
+	class deleteUserTest {
+
+		@Test
+		void successDelete() throws Exception {
+			mocMvc.perform(delete("/api/user/delete/18").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<Integer> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(18, response.getData());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(delete("/api/user/delete/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound()).andDo(result -> {
+						WebResponse<GetUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+					});
+		}
+
+		@Test
+		void failFormat() throws Exception {
+			mocMvc.perform(delete("/api/user/delete/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isBadRequest());
 		}
 	}
 }
