@@ -3,6 +3,7 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,6 +23,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Con
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,7 +68,7 @@ public class ItemControllerTest {
 						assertEquals(5000, response.getData().getCost());
 					});
 		}
-		
+
 		@Test
 		void failName() throws Exception {
 			request.setName(null);
@@ -81,7 +83,7 @@ public class ItemControllerTest {
 						assertEquals("name: cannot be null or empty", response.getDesc());
 						assertNull(response.getData());
 					});
-			
+
 			request.setName("");
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -94,7 +96,7 @@ public class ItemControllerTest {
 						assertEquals("name: cannot be null or empty", response.getDesc());
 						assertNull(response.getData());
 					});
-			
+
 			request.setName(ConstantsTest.exceedString);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -108,7 +110,6 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 		}
-		
 
 		@Test
 		void failDesc() throws Exception {
@@ -124,7 +125,7 @@ public class ItemControllerTest {
 						assertEquals("description: cannot be null or empty", response.getDesc());
 						assertNull(response.getData());
 					});
-			
+
 			request.setDescription("");
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -137,7 +138,7 @@ public class ItemControllerTest {
 						assertEquals("description: cannot be null or empty", response.getDesc());
 						assertNull(response.getData());
 					});
-			
+
 			request.setDescription(ConstantsTest.exceedString);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -151,7 +152,7 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 		}
-		
+
 		@Test
 		void failPrice() throws Exception {
 			request.setPrice(0);
@@ -167,7 +168,7 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 		}
-		
+
 		@Test
 		void failCost() throws Exception {
 			request.setCost(0);
@@ -182,6 +183,48 @@ public class ItemControllerTest {
 						assertEquals("cost: cannot less then 1", response.getDesc());
 						assertNull(response.getData());
 					});
+		}
+	}
+
+	@Nested
+	class getItemTest {
+
+		@Test
+		void successGet() throws Exception {
+			mocMvc.perform(get("/api/item/finditem/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<GetItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals("Barang a", response.getData().getName());
+						assertEquals("Barang a grade 1", response.getData().getDescription());
+						assertEquals(10000, response.getData().getPrice());
+						assertEquals(5000, response.getData().getCost());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(get("/api/item/finditem/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound()).andDo(result -> {
+						WebResponse<GetItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+					});
+		}
+
+		@Test
+		void failFormat() throws Exception {
+			mocMvc.perform(get("/api/item/finditem/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isBadRequest());
 		}
 	}
 }
