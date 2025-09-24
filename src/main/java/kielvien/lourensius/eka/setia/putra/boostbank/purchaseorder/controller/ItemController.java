@@ -1,6 +1,8 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services.ItemService;
 
@@ -27,6 +30,14 @@ public class ItemController {
 		CreateItemResponse response = itemService.createItem(request);
 
 		return WebResponse.<CreateItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
+	}
+
+	@GetMapping(path = "/finditem/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<GetItemResponse> getUser(@PathVariable int itemId) {
+		GetItemResponse response = itemService.findItem(itemId);
+
+		return WebResponse.<GetItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
