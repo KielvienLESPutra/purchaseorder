@@ -5,7 +5,7 @@ public class Constants {
 
 	public enum statusCode {
 		OK("00", "SUCCESS"), BAD_REQUEST("01", "BAD REQUEST"), NOT_FOUND("02", "NOT FOUND"),
-		REFERENCE_NOT_FOUND("03", "REFERENCE NOT FOUND");
+		REFERENCE_NOT_FOUND("03", "REFERENCE NOT FOUND"), REFERENCE_NULL("04", "REFERENCE IS NULL");
 
 		private String code;
 		private String desc;
