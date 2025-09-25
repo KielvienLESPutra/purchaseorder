@@ -149,13 +149,13 @@ public class PurchaseOrderService {
 				.purchaseOrderDetails(listOrderModel).build();
 	}
 
-	private List<PurchaseOderDetailModel> wrapPurchaseOrderModel(boolean wrapId,
+	private List<PurchaseOderDetailModel> wrapPurchaseOrderModel(boolean isWrapId,
 			List<PurchaseOrderDetail> listOrderDetail) {
 		List<PurchaseOderDetailModel> listOrderModel = new ArrayList<>();
 		for (PurchaseOrderDetail orderDetail : listOrderDetail) {
 			PurchaseOderDetailModel orderModel = new PurchaseOderDetailModel();
 
-			if (wrapId) {
+			if (isWrapId) {
 				orderModel.setId(orderDetail.getId());
 			}
 			orderModel.setItemId(orderDetail.getItemId());
