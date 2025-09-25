@@ -464,7 +464,7 @@ public class PurchaseOrderControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/po/deletePurchaseOrder/34").accept(MediaType.APPLICATION_JSON))
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/36").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -473,7 +473,7 @@ public class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(35, response.getData());
+						assertEquals(36, response.getData());
 					});
 		}
 
