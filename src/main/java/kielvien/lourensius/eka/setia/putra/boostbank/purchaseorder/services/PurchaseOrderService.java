@@ -168,4 +168,12 @@ public class PurchaseOrderService {
 
 		return listOrderModel;
 	}
+
+	@Transactional
+	public int deletePurchaseOrder(int purchaseOrderId) {
+		PurchaseOrderHeader purchaseOrderHeader = getPurchaseOrderById(purchaseOrderId);
+
+		purchaseOrderHeaderRepository.delete(purchaseOrderHeader);
+		return purchaseOrderHeader.getId();
+	}
 }
