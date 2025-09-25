@@ -56,7 +56,7 @@ public class ItemController {
 
 	@DeleteMapping(path = "/delete/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<Integer> deleteItem(@PathVariable int itemId) {
-		Integer itemIdDeleted = itemService.deleteItem(itemId);
+		int itemIdDeleted = itemService.deleteItem(itemId);
 
 		return WebResponse.<Integer>builder().data(itemIdDeleted).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();

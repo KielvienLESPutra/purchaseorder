@@ -56,7 +56,7 @@ public class UserController {
 
 	@DeleteMapping(path = "/delete/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<Integer> deleteuser(@PathVariable int userId) {
-		Integer userIdDeleted = userService.deleteUser(userId);
+		int userIdDeleted = userService.deleteUser(userId);
 
 		return WebResponse.<Integer>builder().data(userIdDeleted).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
