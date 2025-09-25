@@ -3,6 +3,7 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -228,7 +229,7 @@ public class ItemControllerTest {
 					.andExpect(status().isBadRequest());
 		}
 	}
-	
+
 	@Nested
 	class updateItem {
 		private CreateItemRequest request;
@@ -348,7 +349,7 @@ public class ItemControllerTest {
 		@Test
 		void failPrice() throws Exception {
 			request.setPrice(0);
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -376,7 +377,7 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 		}
-		
+
 		@Test
 		void failNotfound() throws Exception {
 			mocMvc.perform(put("/api/item/update/999").accept(MediaType.APPLICATION_JSON)
@@ -390,6 +391,45 @@ public class ItemControllerTest {
 						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
 						assertNull(response.getData());
 					});
+		}
+	}
+
+	@Nested
+	class deleteItemTest {
+
+		@Test
+		void successDelete() throws Exception {
+			mocMvc.perform(delete("/api/item/delete/4").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<Integer> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(4, response.getData());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(delete("/api/item/delete/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isNotFound()).andDo(result -> {
+						WebResponse<Integer> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertNull(response.getData());
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+					});
+		}
+
+		@Test
+		void failFormat() throws Exception {
+			mocMvc.perform(delete("/api/item/delete/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isBadRequest());
 		}
 	}
 }
