@@ -34,7 +34,7 @@ public class ItemService {
 		item.setPrice(request.getPrice());
 		item.setCost(request.getCost());
 		itemRepository.save(item);
-		
+
 		return CreateItemResponse.builder().name(item.getName()).description(item.getDescription())
 				.price(item.getPrice()).cost(item.getCost()).build();
 	}
@@ -55,14 +55,22 @@ public class ItemService {
 	public UpdateItemResponse updateItem(int itemId, UpdateItemRequest request) {
 		validationService.validate(request);
 		Items item = getItemById(itemId);
-		
+
 		item.setName(request.getName());
 		item.setDescription(request.getDescription());
 		item.setPrice(request.getPrice());
 		item.setCost(request.getCost());
 		itemRepository.save(item);
-		
+
 		return UpdateItemResponse.builder().name(item.getName()).description(item.getDescription())
 				.price(item.getPrice()).cost(item.getCost()).build();
+	}
+
+	@Transactional
+	public int deleteItem(int itemId) {
+		Items item = getItemById(itemId);
+
+		itemRepository.delete(item);
+		return item.getId();
 	}
 }
