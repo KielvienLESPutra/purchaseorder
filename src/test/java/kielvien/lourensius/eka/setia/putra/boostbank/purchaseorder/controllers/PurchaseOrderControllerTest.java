@@ -3,6 +3,7 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -455,6 +456,45 @@ public class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
 						assertNull(response.getData());
 					});
+		}
+	}
+	
+	@Nested
+	class deletePurchaseOrder {
+
+		@Test
+		void successDelete() throws Exception {
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/34").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isOk()).andDo(result -> {
+						WebResponse<Integer> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(35, response.getData());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isNotFound()).andDo(result -> {
+						WebResponse<Integer> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failFromat() throws Exception {
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isBadRequest());
 		}
 	}
 }
