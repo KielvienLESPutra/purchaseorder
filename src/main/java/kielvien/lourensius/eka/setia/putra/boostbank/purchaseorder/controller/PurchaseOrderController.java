@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,8 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Con
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services.PurchaseOrderService;
 
@@ -38,6 +41,15 @@ public class PurchaseOrderController {
 		GetPurchaseOrderResponse response = orderService.findPurchaseOrder(purchaseOrderId);
 
 		return WebResponse.<GetPurchaseOrderResponse>builder().data(response)
+				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
+	}
+
+	@PutMapping(path = "/updatePurchaseOrder/{purchaseOrderId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<UpdatePurchaseOrderResponse> updatePurchaseOrder(@PathVariable int purchaseOrderId,
+			@RequestBody UpdatePurchaseOrderRequest request) {
+		UpdatePurchaseOrderResponse response = orderService.updatePruchaseOrder(purchaseOrderId, request);
+
+		return WebResponse.<UpdatePurchaseOrderResponse>builder().data(response)
 				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
