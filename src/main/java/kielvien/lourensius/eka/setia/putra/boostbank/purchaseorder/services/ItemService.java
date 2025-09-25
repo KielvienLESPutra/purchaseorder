@@ -39,6 +39,10 @@ public class ItemService {
 				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 
+	public Items getItemByIdWithoutThrow(int itemId) {
+		return itemRepository.findById(itemId).orElse(null);
+	}
+
 	public Items getItemById(int itemId) {
 		return itemRepository.findById(itemId).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
