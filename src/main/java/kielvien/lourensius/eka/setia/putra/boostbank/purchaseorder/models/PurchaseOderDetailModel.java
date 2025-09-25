@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class PurchaseOderDetailModel {
-	private int id;
+	private Integer id;
 	private int itemId;
 	
 	@Min(value = 1, message = "cannot less then 1")
