@@ -15,6 +15,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Purc
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderHeader;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.PurchaseOderDetailModel;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.PurchaseOrderHeaderRepository;
 
@@ -35,7 +36,7 @@ public class PurchaseOrderService {
 	@Transactional
 	public CreatePurchaseOrderResponse createPurchaseOrder(CreatePurchaseOrderRequest request) {
 		validationService.validate(request);
-		
+
 		PurchaseOrderHeader purchaseOrderHeader = new PurchaseOrderHeader();
 		purchaseOrderHeader.setDatetime(LocalDateTime.now());
 		purchaseOrderHeader.setDescription(request.getDescription());
@@ -83,5 +84,24 @@ public class PurchaseOrderService {
 		return CreatePurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
 				.description(purchaseOrderHeader.getDescription()).totalPrice(purchaseOrderHeader.getTotalPrice())
 				.totalCost(purchaseOrderHeader.getTotalCost()).purchaseOrderDetails(listOrderResponse).build();
+	}
+
+	public GetPurchaseOrderResponse findPurchaseOrder(int purchaseOrderId) {
+		PurchaseOrderHeader purchaseOrderHeader = purchaseOrderHeaderRepository.findById(purchaseOrderId).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
+
+		List<PurchaseOderDetailModel> listOrders = new ArrayList<>();
+		for (PurchaseOrderDetail order : purchaseOrderHeader.getPods()) {
+			PurchaseOderDetailModel orderModel = new PurchaseOderDetailModel();
+			orderModel.setItemId(order.getId());
+			orderModel.setItemPrice(order.getItemPrice());
+			orderModel.setItemCost(order.getItemCost());
+			orderModel.setItemQty(order.getItemQty());
+			listOrders.add(orderModel);
+		}
+
+		return GetPurchaseOrderResponse.builder().description(purchaseOrderHeader.getDescription())
+				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
+				.purchaseOrderDetails(listOrders).build();
 	}
 }
