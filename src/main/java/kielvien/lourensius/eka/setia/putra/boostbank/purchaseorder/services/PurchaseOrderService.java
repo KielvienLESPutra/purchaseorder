@@ -2,7 +2,9 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,13 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Con
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderDetail;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderHeader;
+
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.PurchaseOderDetailModel;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderRequest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.PurchaseOrderHeaderRepository;
 
 @Service
@@ -71,37 +76,96 @@ public class PurchaseOrderService {
 		purchaseOrderHeader.setPods(listOrder);
 		purchaseOrderHeaderRepository.save(purchaseOrderHeader);
 
-		List<PurchaseOderDetailModel> listOrderResponse = new ArrayList<>();
-		for (PurchaseOrderDetail order : purchaseOrderHeader.getPods()) {
-			PurchaseOderDetailModel orderDetailModel = new PurchaseOderDetailModel();
-			orderDetailModel.setId(order.getId());
-			orderDetailModel.setItemId(order.getItemId());
-			orderDetailModel.setItemCost(order.getItemCost());
-			orderDetailModel.setItemPrice(order.getItemPrice());
-			orderDetailModel.setItemQty(order.getItemQty());
-			listOrderResponse.add(orderDetailModel);
-		}
+		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(true, purchaseOrderHeader.getPods());
 		return CreatePurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
 				.description(purchaseOrderHeader.getDescription()).totalPrice(purchaseOrderHeader.getTotalPrice())
-				.totalCost(purchaseOrderHeader.getTotalCost()).purchaseOrderDetails(listOrderResponse).build();
+				.totalCost(purchaseOrderHeader.getTotalCost()).purchaseOrderDetails(listOrderModel).build();
+	}
+
+	public PurchaseOrderHeader getPurchaseOrderById(int purchaseOrderId) {
+		return purchaseOrderHeaderRepository.findById(purchaseOrderId).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
 	}
 
 	public GetPurchaseOrderResponse findPurchaseOrder(int purchaseOrderId) {
-		PurchaseOrderHeader purchaseOrderHeader = purchaseOrderHeaderRepository.findById(purchaseOrderId).orElseThrow(
-				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
-
-		List<PurchaseOderDetailModel> listOrders = new ArrayList<>();
-		for (PurchaseOrderDetail order : purchaseOrderHeader.getPods()) {
-			PurchaseOderDetailModel orderModel = new PurchaseOderDetailModel();
-			orderModel.setItemId(order.getId());
-			orderModel.setItemPrice(order.getItemPrice());
-			orderModel.setItemCost(order.getItemCost());
-			orderModel.setItemQty(order.getItemQty());
-			listOrders.add(orderModel);
-		}
+		PurchaseOrderHeader purchaseOrderHeader = getPurchaseOrderById(purchaseOrderId);
+		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
 
 		return GetPurchaseOrderResponse.builder().description(purchaseOrderHeader.getDescription())
 				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
-				.purchaseOrderDetails(listOrders).build();
+				.purchaseOrderDetails(listOrderModel).build();
+	}
+
+	@Transactional
+	public UpdatePurchaseOrderResponse updatePruchaseOrder(int purchaseOrderId, UpdatePurchaseOrderRequest request) {
+		validationService.validate(request);
+
+		PurchaseOrderHeader purchaseOrderHeader = getPurchaseOrderById(purchaseOrderId);
+		Map<Integer, PurchaseOrderDetail> mapDataOrder = new HashMap<>();
+
+		if (request.getPurchaseOrderDetails().size() > purchaseOrderHeader.getPods().size()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Constants.statusCode.BAD_REQUEST.getDesc());
+		}
+
+		for (PurchaseOrderDetail orderDetail : purchaseOrderHeader.getPods()) {
+			mapDataOrder.put(orderDetail.getId(), orderDetail);
+		}
+
+		int totalCostTransaction = 0;
+		int totalPriceTransaction = 0;
+		for (PurchaseOderDetailModel orderModel : request.getPurchaseOrderDetails()) {
+			if (orderModel.getId() == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						Constants.statusCode.REFERENCE_NULL.getDesc());
+			}
+
+			if (!mapDataOrder.containsKey(orderModel.getId())) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						Constants.statusCode.REFERENCE_NOT_FOUND.getDesc());
+			}
+
+			PurchaseOrderDetail orderDetail = mapDataOrder.get(orderModel.getId());
+			orderDetail.setItemId(purchaseOrderId);
+			orderDetail.setItemQty(purchaseOrderId);
+
+			Items item = itemService.getItemById(orderModel.getItemId());
+
+			int totalCostItem = item.getCost() * orderModel.getItemQty();
+			int totalPriceItem = item.getPrice() * orderModel.getItemQty();
+			totalCostTransaction += totalCostItem;
+			totalPriceTransaction += totalPriceItem;
+			orderDetail.setItemCost(totalCostItem);
+			orderDetail.setItemPrice(totalPriceItem);
+		}
+
+		purchaseOrderHeader.setDescription(request.getDescription());
+		purchaseOrderHeader.setTotalCost(totalCostTransaction);
+		purchaseOrderHeader.setTotalPrice(totalPriceTransaction);
+		purchaseOrderHeaderRepository.save(purchaseOrderHeader);
+
+		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
+		return UpdatePurchaseOrderResponse.builder().description(purchaseOrderHeader.getDescription())
+				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
+				.purchaseOrderDetails(listOrderModel).build();
+	}
+
+	private List<PurchaseOderDetailModel> wrapPurchaseOrderModel(boolean wrapId,
+			List<PurchaseOrderDetail> listOrderDetail) {
+		List<PurchaseOderDetailModel> listOrderModel = new ArrayList<>();
+		for (PurchaseOrderDetail orderDetail : listOrderDetail) {
+			PurchaseOderDetailModel orderModel = new PurchaseOderDetailModel();
+
+			if (wrapId) {
+				orderModel.setId(orderDetail.getId());
+			}
+			orderModel.setItemId(orderDetail.getItemId());
+			orderModel.setItemPrice(orderDetail.getItemPrice());
+			orderModel.setItemCost(orderDetail.getItemCost());
+			orderModel.setItemQty(orderDetail.getItemQty());
+
+			listOrderModel.add(orderModel);
+		}
+
+		return listOrderModel;
 	}
 }
