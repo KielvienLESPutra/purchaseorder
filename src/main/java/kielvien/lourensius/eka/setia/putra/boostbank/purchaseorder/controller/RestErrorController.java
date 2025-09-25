@@ -21,8 +21,14 @@ public class RestErrorController {
 
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<WebResponse<Object>> responseStatusException(ResponseStatusException exception) {
-		WebResponse<Object> response = WebResponse.builder().data(null)
-				.statusCode(Constants.statusCode.NOT_FOUND.getCode()).desc(exception.getReason()).build();
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		if (HttpStatus.BAD_REQUEST.equals(exception.getStatusCode())) {
+			WebResponse<Object> response = WebResponse.builder().data(null)
+					.statusCode(Constants.statusCode.BAD_REQUEST.getCode()).desc(exception.getReason()).build();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		} else {
+			WebResponse<Object> response = WebResponse.builder().data(null)
+					.statusCode(Constants.statusCode.NOT_FOUND.getCode()).desc(exception.getReason()).build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
 	}
 }
