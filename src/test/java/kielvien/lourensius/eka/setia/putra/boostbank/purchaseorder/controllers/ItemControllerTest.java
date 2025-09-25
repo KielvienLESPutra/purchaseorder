@@ -244,7 +244,7 @@ public class ItemControllerTest {
 
 		@Test
 		void successCreate() throws Exception {
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -264,7 +264,7 @@ public class ItemControllerTest {
 		@Test
 		void failName() throws Exception {
 			request.setName(null);
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -277,7 +277,7 @@ public class ItemControllerTest {
 					});
 
 			request.setName("");
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -290,7 +290,7 @@ public class ItemControllerTest {
 					});
 
 			request.setName(ConstantsTest.exceedString);
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -306,7 +306,7 @@ public class ItemControllerTest {
 		@Test
 		void failDesc() throws Exception {
 			request.setDescription(null);
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -319,7 +319,7 @@ public class ItemControllerTest {
 					});
 
 			request.setDescription("");
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -332,7 +332,7 @@ public class ItemControllerTest {
 					});
 
 			request.setDescription(ConstantsTest.exceedString);
-			mocMvc.perform(put("/api/item/update/999").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -364,7 +364,7 @@ public class ItemControllerTest {
 		@Test
 		void failCost() throws Exception {
 			request.setCost(0);
-			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
