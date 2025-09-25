@@ -8,7 +8,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Purc
 import lombok.Data;
 
 @Data
-public class PurchaseOrderRequest {
+public class CreatePurchaseOrderRequest {
 	@NotBlank(message = "cannot be null or empty")
 	@Size(max = 500, message = "character cannot more then 500")
 	private String description;
