@@ -1,6 +1,7 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +51,13 @@ public class PurchaseOrderController {
 		UpdatePurchaseOrderResponse response = orderService.updatePruchaseOrder(purchaseOrderId, request);
 
 		return WebResponse.<UpdatePurchaseOrderResponse>builder().data(response)
+				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
+	}
+	
+	@DeleteMapping(path = "/deletePurchaseOrder/{purchaseOrderId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<Integer> delatePurchaseOrder(@PathVariable int purchaseOrderId){
+		int purchasedIdDelete = orderService.deletePurchaseOrder(purchaseOrderId);
+		return WebResponse.<Integer>builder().data(purchasedIdDelete)
 				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
