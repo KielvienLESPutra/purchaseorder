@@ -1,6 +1,7 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +38,7 @@ public class ItemController {
 	}
 
 	@GetMapping(path = "/finditem/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<GetItemResponse> getUser(@PathVariable int itemId) {
+	public WebResponse<GetItemResponse> getItem(@PathVariable int itemId) {
 		GetItemResponse response = itemService.findItem(itemId);
 
 		return WebResponse.<GetItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
@@ -45,11 +46,19 @@ public class ItemController {
 	}
 
 	@PutMapping(path = "/update/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<UpdateItemResponse> updateUser(@PathVariable int itemId,
+	public WebResponse<UpdateItemResponse> updateItem(@PathVariable int itemId,
 			@RequestBody UpdateItemRequest request) {
 		UpdateItemResponse response = itemService.updateItem(itemId, request);
 
 		return WebResponse.<UpdateItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
+	}
+
+	@DeleteMapping(path = "/delete/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<Integer> deleteItem(@PathVariable int itemId) {
+		Integer itemIdDeleted = itemService.deleteItem(itemId);
+
+		return WebResponse.<Integer>builder().data(itemIdDeleted).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
