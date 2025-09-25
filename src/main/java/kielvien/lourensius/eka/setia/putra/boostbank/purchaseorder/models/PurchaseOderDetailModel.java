@@ -8,6 +8,4 @@ import lombok.Data;
 public class PurchaseOderDetailModel {
 	private int itemId;
 	private int itemQty;
-	private int itemCost;
-	private int itemPrice;
 }
