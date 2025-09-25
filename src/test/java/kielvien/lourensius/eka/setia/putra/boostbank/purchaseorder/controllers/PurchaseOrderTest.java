@@ -3,6 +3,7 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,6 +26,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Con
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.PurchaseOderDetailModel;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -188,6 +189,47 @@ public class PurchaseOrderTest {
 						assertEquals(Constants.statusCode.REFERENCE_NOT_FOUND.getDesc(), response.getDesc());
 						assertNull(response.getData());
 					});
+		}
+	}
+
+	@Nested
+	class getPurchaseOrder {
+
+		@Test
+		void successCreate() throws Exception {
+			mocMvc.perform(get("/api/po/findPurchaseOrder/9").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isOk()).andDo(result -> {
+						WebResponse<GetPurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
+						assertEquals(55000, response.getData().getTotalCost());
+						assertEquals(110000, response.getData().getTotalPrice());
+					});
+		}
+
+		@Test
+		void failNotFound() throws Exception {
+			mocMvc.perform(get("/api/po/findPurchaseOrder/9999").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isNotFound()).andDo(result -> {
+						WebResponse<GetPurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failFromat() throws Exception {
+			mocMvc.perform(get("/api/po/findPurchaseOrder/abc").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isBadRequest());
 		}
 	}
 }
