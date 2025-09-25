@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -225,6 +226,170 @@ public class ItemControllerTest {
 		void failFormat() throws Exception {
 			mocMvc.perform(get("/api/item/finditem/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
+		}
+	}
+	
+	@Nested
+	class updateItem {
+		private CreateItemRequest request;
+
+		@BeforeEach
+		void setup() {
+			request = new CreateItemRequest();
+			request.setName("Barang b");
+			request.setDescription("Barang b grade 3");
+			request.setPrice(50000);
+			request.setCost(1000);
+		}
+
+		@Test
+		void successCreate() throws Exception {
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isOk()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals("Barang b", response.getData().getName());
+						assertEquals("Barang b grade 3", response.getData().getDescription());
+						assertEquals(50000, response.getData().getPrice());
+						assertEquals(1000, response.getData().getCost());
+					});
+		}
+
+		@Test
+		void failName() throws Exception {
+			request.setName(null);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.setName("");
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.setName(ConstantsTest.exceedString);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("name: character cannot more then 500", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failDesc() throws Exception {
+			request.setDescription(null);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.setDescription("");
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.setDescription(ConstantsTest.exceedString);
+			mocMvc.perform(put("/api/item/update/999").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("description: character cannot more then 500", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failPrice() throws Exception {
+			request.setPrice(0);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("price: cannot less then 1", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failCost() throws Exception {
+			request.setCost(0);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("cost: cannot less then 1", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+		
+		@Test
+		void failNotfound() throws Exception {
+			mocMvc.perform(put("/api/item/update/999").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isNotFound()).andDo(result -> {
+						WebResponse<CreateItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.NOT_FOUND.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.NOT_FOUND.getDesc(), response.getDesc());
+						assertNull(response.getData());
+					});
 		}
 	}
 }
