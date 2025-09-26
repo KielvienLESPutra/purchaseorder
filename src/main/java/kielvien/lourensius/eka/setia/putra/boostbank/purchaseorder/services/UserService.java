@@ -62,7 +62,7 @@ public class UserService {
 				.phone(user.getPhone()).email(user.getEmail()).build();
 	}
 
-	public User getUserById(int userId) {
+	private User getUserById(int userId) {
 		return userRepository.findById(userId).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
 	}
