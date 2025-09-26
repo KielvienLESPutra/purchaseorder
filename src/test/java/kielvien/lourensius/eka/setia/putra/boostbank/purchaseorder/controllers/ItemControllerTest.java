@@ -3,11 +3,15 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -16,17 +20,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
@@ -39,12 +46,29 @@ public class ItemControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@MockitoBean
+	private ItemRepository itemRepository;
+
+	@BeforeEach
+	void setupParentTest() {
+		when(itemRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem()));
+		when(itemRepository.findAll()).thenReturn(ConstantsDataTest.ItemsMokito.listItem());
+	}
+
 	@Nested
 	class createItem {
 		private CreateItemRequest request;
 
 		@BeforeEach
 		void setup() {
+			Items itemDummy = new Items();
+			itemDummy.setName("Barang a");
+			itemDummy.setDescription("Barang a grade 1");
+			itemDummy.setPrice(10000);
+			itemDummy.setCost(5000);
+
+			when(itemRepository.save(any(Items.class))).thenReturn(itemDummy);
+
 			request = new CreateItemRequest();
 			request.setName("Barang a");
 			request.setDescription("Barang a grade 1");
@@ -99,7 +123,7 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setName(ConstantsTest.exceedString);
+			request.setName(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
@@ -141,7 +165,7 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setDescription(ConstantsTest.exceedString);
+			request.setDescription(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
@@ -202,10 +226,14 @@ public class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals("Barang a", response.getData().getName());
-						assertEquals("Barang a grade 1", response.getData().getDescription());
-						assertEquals(10000, response.getData().getPrice());
-						assertEquals(5000, response.getData().getCost());
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getName(),
+								response.getData().getName());
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getDescription(),
+								response.getData().getDescription());
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getPrice(),
+								response.getData().getPrice());
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getCost(),
+								response.getData().getCost());
 					});
 		}
 
@@ -245,7 +273,7 @@ public class ItemControllerTest {
 
 		@Test
 		void successUpdate() throws Exception {
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -265,7 +293,7 @@ public class ItemControllerTest {
 		@Test
 		void failUpdateName() throws Exception {
 			request.setName(null);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -278,7 +306,7 @@ public class ItemControllerTest {
 					});
 
 			request.setName("");
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -290,8 +318,8 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setName(ConstantsTest.exceedString);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			request.setName(ConstantsDataTest.EXCEED_CHARACTER);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -307,7 +335,7 @@ public class ItemControllerTest {
 		@Test
 		void failUpdateDesc() throws Exception {
 			request.setDescription(null);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -320,7 +348,7 @@ public class ItemControllerTest {
 					});
 
 			request.setDescription("");
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -332,8 +360,8 @@ public class ItemControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setDescription(ConstantsTest.exceedString);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			request.setDescription(ConstantsDataTest.EXCEED_CHARACTER);
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -349,7 +377,7 @@ public class ItemControllerTest {
 		@Test
 		void failUpdatePrice() throws Exception {
 			request.setPrice(0);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -365,7 +393,7 @@ public class ItemControllerTest {
 		@Test
 		void failUpdateCost() throws Exception {
 			request.setCost(0);
-			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateItemResponse> response = objectMapper
@@ -399,7 +427,7 @@ public class ItemControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/item/delete/13").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(delete("/api/item/delete/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -408,7 +436,7 @@ public class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(13, response.getData());
+						assertEquals(1, response.getData());
 					});
 		}
 

@@ -4,11 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,18 +21,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetUserResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdateUserRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
@@ -41,6 +48,15 @@ public class UserControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@MockitoBean
+	private UserRepository userRepository;
+
+	@BeforeEach
+	void setupParentTest() {
+		when(userRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.usersMokito.singleUser()));
+		when(userRepository.findAll()).thenReturn(ConstantsDataTest.usersMokito.allUser());
+	}
+
 	@Nested
 	class createUserTest {
 
@@ -48,6 +64,14 @@ public class UserControllerTest {
 
 		@BeforeEach
 		void setup() {
+			User userDummy = new User();
+			userDummy.setFirstName("Kielvien");
+			userDummy.setLastName("Lourensius Eka Setia Putra");
+			userDummy.setEmail("kielvien12345@gmail.com");
+			userDummy.setPhone("085888888888");
+
+			when(userRepository.save(any(User.class))).thenReturn(userDummy);
+
 			request = new CreateUserRequest();
 			request.setFirstName("Kielvien");
 			request.setLastName("Lourensius Eka Setia Putra");
@@ -101,8 +125,8 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("firstName: cannot be null or empty", response.getDesc());
 					});
-			
-			request.setFirstName(ConstantsTest.exceedString);
+
+			request.setFirstName(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
@@ -143,8 +167,8 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals("lastName: cannot be null or empty", response.getDesc());
 					});
-			
-			request.setLastName(ConstantsTest.exceedString);
+
+			request.setLastName(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
@@ -252,7 +276,7 @@ public class UserControllerTest {
 
 		@Test
 		void successGet() throws Exception {
-			mocMvc.perform(get("/api/user/finduser/13").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(get("/api/user/finduser/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<GetUserResponse> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -261,10 +285,12 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals("Kielvien", response.getData().getFirstName());
-						assertEquals("Lourensius Eka Setia Putra", response.getData().getLastName());
-						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
-						assertEquals("085888888888", response.getData().getPhone());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getFirstName(),
+								response.getData().getFirstName());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getLastName(),
+								response.getData().getLastName());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getEmail(), response.getData().getEmail());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getPhone(), response.getData().getPhone());
 					});
 		}
 
@@ -305,9 +331,24 @@ public class UserControllerTest {
 
 		@Test
 		void successUpdate() throws Exception {
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<GetUserResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals("Kielvien Lourensius", response.getData().getFirstName());
+						assertEquals("EkaSetiaPutra", response.getData().getLastName());
+						assertEquals("kielvien679@gmail.com", response.getData().getEmail());
+						assertEquals("085871321234", response.getData().getPhone());
+					});
+
+			mocMvc.perform(get("/api/user/finduser/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
 						WebResponse<GetUserResponse> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
@@ -340,7 +381,7 @@ public class UserControllerTest {
 		@Test
 		void failUpdateLastName() throws Exception {
 			request.setLastName("");
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -353,7 +394,7 @@ public class UserControllerTest {
 					});
 
 			request.setLastName(null);
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -369,7 +410,7 @@ public class UserControllerTest {
 		@Test
 		void failUpdateEmail() throws Exception {
 			request.setEmail("");
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -383,7 +424,7 @@ public class UserControllerTest {
 					});
 
 			request.setEmail(null);
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -397,7 +438,7 @@ public class UserControllerTest {
 					});
 
 			request.setEmail("youremailishere.com");
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -413,7 +454,7 @@ public class UserControllerTest {
 		@Test
 		void failUpdatePhone() throws Exception {
 			request.setPhone("");
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -427,7 +468,7 @@ public class UserControllerTest {
 					});
 
 			request.setPhone(null);
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -441,7 +482,7 @@ public class UserControllerTest {
 					});
 
 			request.setPhone("12345");
-			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
+			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<CreateUserResponse> response = objectMapper
@@ -457,10 +498,10 @@ public class UserControllerTest {
 
 	@Nested
 	class deleteUserTest {
-		
+
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/user/delete/28").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(delete("/api/user/delete/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -469,7 +510,7 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(28, response.getData());
+						assertEquals(1, response.getData());
 					});
 		}
 
