@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -108,12 +107,12 @@ public class UserControllerTest {
 			ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
 			verify(userRepository).save(argumentCaptor.capture());
 
-			User userUpdated = argumentCaptor.getValue();
-			assertEquals(0, userUpdated.getId());
-			assertEquals("Kielvien", userUpdated.getFirstName());
-			assertEquals("Lourensius Eka Setia Putra", userUpdated.getLastName());
-			assertEquals("kielvien12345@gmail.com", userUpdated.getEmail());
-			assertEquals("085888888888", userUpdated.getPhone());
+			User userCreated = argumentCaptor.getValue();
+			assertEquals(0, userCreated.getId());
+			assertEquals("Kielvien", userCreated.getFirstName());
+			assertEquals("Lourensius Eka Setia Putra", userCreated.getLastName());
+			assertEquals("kielvien12345@gmail.com", userCreated.getEmail());
+			assertEquals("085888888888", userCreated.getPhone());
 		}
 
 		@Test
