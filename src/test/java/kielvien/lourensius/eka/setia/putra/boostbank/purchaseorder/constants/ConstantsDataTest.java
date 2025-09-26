@@ -1,10 +1,14 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants;
 
+import static org.mockito.ArgumentMatchers.contains;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderDetail;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderHeader;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 
 public class ConstantsDataTest {
@@ -49,7 +53,7 @@ public class ConstantsDataTest {
 				user.setCreatedDatetime(LocalDateTime.now());
 				user.setUpdatedBy(Constants.USER_SYSTEM);
 				user.setUpdatedDatetime(LocalDateTime.now());
-				
+
 				listUser.add(user);
 			}
 
@@ -59,9 +63,9 @@ public class ConstantsDataTest {
 
 	public static final class ItemsMokito {
 
-		public static Item singleItem() {
+		public static Item singleItem(int id) {
 			Item item = new Item();
-			item.setId(1);
+			item.setId(id);
 			item.setName("barang abc");
 			item.setDescription("Barang dummy abc");
 			item.setPrice(1000);
@@ -75,7 +79,7 @@ public class ConstantsDataTest {
 
 		public static List<Item> listItem() {
 			List<Item> listItem = new ArrayList<Item>();
-			
+
 			for (int i = 0; i <= 20; i++) {
 				Item item = new Item();
 				item.setId(i);
@@ -87,10 +91,84 @@ public class ConstantsDataTest {
 				item.setCreatedDatetime(LocalDateTime.now());
 				item.setUpdatedBy(Constants.USER_SYSTEM);
 				item.setUpdatedDatetime(LocalDateTime.now());
-				
+
 				listItem.add(item);
 			}
 			return listItem;
+		}
+	}
+
+	public static final class PurchaseOrderMockito {
+
+		public static PurchaseOrderHeader singleTransaction() {
+			PurchaseOrderHeader transaction = new PurchaseOrderHeader();
+			transaction.setId(1);
+			transaction.setDescription("Transaksi dummy 1");
+			transaction.setTotalCost(15000);
+			transaction.setTotalPrice(7500);
+			transaction.setCreatedBy(Constants.USER_SYSTEM);
+			transaction.setCreatedDatetime(LocalDateTime.now());
+			transaction.setUpdatedBy(Constants.USER_SYSTEM);
+			transaction.setUpdatedDatetime(LocalDateTime.now());
+
+			List<PurchaseOrderDetail> listOrderDetail = new ArrayList<PurchaseOrderDetail>();
+			for (int i = 1; i <= 5; i++) {
+				PurchaseOrderDetail orderDetail = new PurchaseOrderDetail();
+				orderDetail.setId(i);
+				orderDetail.setItemId(i);
+				orderDetail.setItemPrice(1000);
+				orderDetail.setItemCost(500);
+				orderDetail.setItemQty(i);
+				orderDetail.setCreatedBy(Constants.USER_SYSTEM);
+				orderDetail.setCreatedDatetime(LocalDateTime.now());
+				orderDetail.setUpdatedBy(Constants.USER_SYSTEM);
+				orderDetail.setUpdatedDatetime(LocalDateTime.now());
+				orderDetail.setPoh(transaction);
+
+				listOrderDetail.add(orderDetail);
+			}
+			transaction.setPods(listOrderDetail);
+
+			return transaction;
+		}
+
+		public static List<PurchaseOrderHeader> listTransaction() {
+			List<PurchaseOrderHeader> listTransaction = new ArrayList<PurchaseOrderHeader>();
+			int counter = 1;
+
+			for (int i = 0; i < 20; i++) {
+				PurchaseOrderHeader transaction = new PurchaseOrderHeader();
+				transaction.setId(i);
+				transaction.setDescription("Transaksi dummy " + i);
+				transaction.setTotalCost(15000);
+				transaction.setTotalPrice(7500);
+				transaction.setCreatedBy(Constants.USER_SYSTEM);
+				transaction.setCreatedDatetime(LocalDateTime.now());
+				transaction.setUpdatedBy(Constants.USER_SYSTEM);
+				transaction.setUpdatedDatetime(LocalDateTime.now());
+
+				List<PurchaseOrderDetail> listOrderDetail = new ArrayList<PurchaseOrderDetail>();
+				for (int y = 1; y <= 5; y++) {
+					PurchaseOrderDetail orderDetail = new PurchaseOrderDetail();
+					orderDetail.setId(counter);
+					orderDetail.setItemId(y);
+					orderDetail.setItemPrice(1000);
+					orderDetail.setItemCost(500);
+					orderDetail.setItemQty(y);
+					orderDetail.setCreatedBy(Constants.USER_SYSTEM);
+					orderDetail.setCreatedDatetime(LocalDateTime.now());
+					orderDetail.setUpdatedBy(Constants.USER_SYSTEM);
+					orderDetail.setUpdatedDatetime(LocalDateTime.now());
+					orderDetail.setPoh(transaction);
+
+					listOrderDetail.add(orderDetail);
+					counter++;
+				}
+				transaction.setPods(listOrderDetail);
+				listTransaction.add(transaction);
+			}
+
+			return listTransaction;
 		}
 	}
 }

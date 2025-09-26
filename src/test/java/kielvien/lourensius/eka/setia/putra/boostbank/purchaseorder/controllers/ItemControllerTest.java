@@ -54,7 +54,7 @@ class ItemControllerTest {
 
 	@BeforeEach
 	void setupParentTest() {
-		when(itemRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem()));
+		when(itemRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(1)));
 		when(itemRepository.findAll()).thenReturn(ConstantsDataTest.ItemsMokito.listItem());
 	}
 
@@ -243,13 +243,13 @@ class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getName(),
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getName(),
 								response.getData().getName());
-						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getDescription(),
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getDescription(),
 								response.getData().getDescription());
-						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getPrice(),
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getPrice(),
 								response.getData().getPrice());
-						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getCost(),
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getCost(),
 								response.getData().getCost());
 					});
 
