@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
@@ -61,13 +61,13 @@ public class ItemControllerTest {
 
 		@BeforeEach
 		void setup() {
-			Items itemDummy = new Items();
+			Item itemDummy = new Item();
 			itemDummy.setName("Barang a");
 			itemDummy.setDescription("Barang a grade 1");
 			itemDummy.setPrice(10000);
 			itemDummy.setCost(5000);
 
-			when(itemRepository.save(any(Items.class))).thenReturn(itemDummy);
+			when(itemRepository.save(any(Item.class))).thenReturn(itemDummy);
 
 			request = new CreateItemRequest();
 			request.setName("Barang a");

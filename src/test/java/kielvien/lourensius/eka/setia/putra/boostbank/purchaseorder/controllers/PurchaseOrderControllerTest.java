@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
@@ -33,6 +33,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.Purcha
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.PurchaseOrderHeaderRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
@@ -46,6 +47,14 @@ public class PurchaseOrderControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Autowired
+	private PurchaseOrderHeaderRepository purchaseOrderHeaderRepository;
+	
+	@BeforeEach
+	void setupParentTest() {
+		
+	}
+	
 	@Nested
 	class createPurchaseOrder {
 
@@ -116,7 +125,7 @@ public class PurchaseOrderControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setDescription(ConstantsTest.exceedString);
+			request.setDescription(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(post("/api/po/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
@@ -310,7 +319,7 @@ public class PurchaseOrderControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.setDescription(ConstantsTest.exceedString);
+			request.setDescription(ConstantsDataTest.EXCEED_CHARACTER);
 			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {

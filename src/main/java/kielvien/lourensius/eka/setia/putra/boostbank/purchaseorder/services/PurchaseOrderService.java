@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderDetail;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderHeader;
 
@@ -50,7 +50,7 @@ public class PurchaseOrderService {
 		int totalCostTransaction = 0;
 		List<PurchaseOrderDetail> listOrder = new ArrayList<>();
 		for (PurchaseOderDetailModel order : request.getPurchaseOrderDetails()) {
-			Items item = itemService.getItemByIdWithoutThrow(order.getItemId());
+			Item item = itemService.getItemByIdWithoutThrow(order.getItemId());
 
 			if (item == null) {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -128,7 +128,7 @@ public class PurchaseOrderService {
 			orderDetail.setItemId(purchaseOrderId);
 			orderDetail.setItemQty(purchaseOrderId);
 
-			Items item = itemService.getItemById(orderModel.getItemId());
+			Item item = itemService.getItemById(orderModel.getItemId());
 
 			int totalCostItem = item.getCost() * orderModel.getItemQty();
 			int totalPriceItem = item.getPrice() * orderModel.getItemQty();

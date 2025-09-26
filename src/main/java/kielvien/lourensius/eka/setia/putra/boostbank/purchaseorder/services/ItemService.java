@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
@@ -27,7 +27,7 @@ public class ItemService {
 	@Transactional
 	public CreateItemResponse createItem(CreateItemRequest request) {
 		validationService.validate(request);
-		Items item = new Items();
+		Item item = new Item();
 
 		item.setName(request.getName());
 		item.setDescription(request.getDescription());
@@ -39,17 +39,17 @@ public class ItemService {
 				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 
-	public Items getItemByIdWithoutThrow(int itemId) {
+	public Item getItemByIdWithoutThrow(int itemId) {
 		return itemRepository.findById(itemId).orElse(null);
 	}
 
-	public Items getItemById(int itemId) {
+	public Item getItemById(int itemId) {
 		return itemRepository.findById(itemId).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Constants.statusCode.NOT_FOUND.getDesc()));
 	}
 
 	public GetItemResponse findItem(int itemId) {
-		Items item = getItemById(itemId);
+		Item item = getItemById(itemId);
 
 		return GetItemResponse.builder().name(item.getName()).description(item.getDescription()).price(item.getPrice())
 				.cost(item.getCost()).build();
@@ -58,7 +58,7 @@ public class ItemService {
 	@Transactional
 	public UpdateItemResponse updateItem(int itemId, UpdateItemRequest request) {
 		validationService.validate(request);
-		Items item = getItemById(itemId);
+		Item item = getItemById(itemId);
 
 		item.setName(request.getName());
 		item.setDescription(request.getDescription());
@@ -72,7 +72,7 @@ public class ItemService {
 
 	@Transactional
 	public int deleteItem(int itemId) {
-		Items item = getItemById(itemId);
+		Item item = getItemById(itemId);
 
 		itemRepository.delete(item);
 		return item.getId();

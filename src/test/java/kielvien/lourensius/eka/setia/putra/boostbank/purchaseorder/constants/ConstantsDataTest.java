@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Items;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 
 public class ConstantsDataTest {
@@ -59,8 +59,8 @@ public class ConstantsDataTest {
 
 	public static final class ItemsMokito {
 
-		public static Items singleItem() {
-			Items item = new Items();
+		public static Item singleItem() {
+			Item item = new Item();
 			item.setId(1);
 			item.setName("barang abc");
 			item.setDescription("Barang dummy abc");
@@ -73,11 +73,11 @@ public class ConstantsDataTest {
 			return item;
 		}
 
-		public static List<Items> listItem() {
-			List<Items> listItem = new ArrayList<Items>();
+		public static List<Item> listItem() {
+			List<Item> listItem = new ArrayList<Item>();
 			
 			for (int i = 0; i <= 20; i++) {
-				Items item = new Items();
+				Item item = new Item();
 				item.setId(1);
 				item.setName("barang " + i);
 				item.setDescription("Barang desc dummy " + 1);
