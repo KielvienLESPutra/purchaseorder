@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
-public class UserControllerTest {
+class UserControllerTest {
 	@Autowired
 	private MockMvc mocMvc;
 

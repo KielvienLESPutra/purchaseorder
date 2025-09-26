@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
-public class PurchaseOrderControllerTest {
+class PurchaseOrderControllerTest {
 
 	@Autowired
 	private MockMvc mocMvc;

@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.awt.event.InvocationEvent;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
-import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
@@ -44,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
-public class ItemControllerTest {
+class ItemControllerTest {
 	@Autowired
 	private MockMvc mocMvc;
 
@@ -83,8 +81,8 @@ public class ItemControllerTest {
 
 		@Test
 		void successCreate() throws Exception {
-			when(itemRepository.save(any(Item.class))).then(InvocationEvent -> {
-				return InvocationEvent.getArgument(0);
+			when(itemRepository.save(any(Item.class))).then(inovacation -> {
+				return inovacation.getArgument(0);
 			});
 
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
