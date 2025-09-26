@@ -72,7 +72,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failName() throws Exception {
+		void failCreateName() throws Exception {
 			request.setName(null);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -114,7 +114,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failDesc() throws Exception {
+		void failCreateDesc() throws Exception {
 			request.setDescription(null);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -156,7 +156,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failPrice() throws Exception {
+		void failCreatePrice() throws Exception {
 			request.setPrice(0);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -172,7 +172,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failCost() throws Exception {
+		void failCreateCost() throws Exception {
 			request.setCost(0);
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -210,7 +210,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failGetNotFound() throws Exception {
 			mocMvc.perform(get("/api/item/finditem/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isNotFound()).andDo(result -> {
 						WebResponse<GetItemResponse> response = objectMapper
@@ -224,7 +224,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failFormat() throws Exception {
+		void failGetFormat() throws Exception {
 			mocMvc.perform(get("/api/item/finditem/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
 		}
@@ -244,7 +244,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void successCreate() throws Exception {
+		void successUpdate() throws Exception {
 			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -263,7 +263,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failName() throws Exception {
+		void failUpdateName() throws Exception {
 			request.setName(null);
 			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -305,7 +305,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failDesc() throws Exception {
+		void failUpdateDesc() throws Exception {
 			request.setDescription(null);
 			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -347,7 +347,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failPrice() throws Exception {
+		void failUpdatePrice() throws Exception {
 			request.setPrice(0);
 			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -363,7 +363,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failCost() throws Exception {
+		void failUpdateCost() throws Exception {
 			request.setCost(0);
 			mocMvc.perform(put("/api/item/update/2").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -379,7 +379,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failNotfound() throws Exception {
+		void failUpdateNotfound() throws Exception {
 			mocMvc.perform(put("/api/item/update/999").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isNotFound()).andDo(result -> {
@@ -399,7 +399,7 @@ public class ItemControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/item/delete/4").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(delete("/api/item/delete/13").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -408,12 +408,12 @@ public class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(4, response.getData());
+						assertEquals(13, response.getData());
 					});
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failDeleteNotFound() throws Exception {
 			mocMvc.perform(delete("/api/item/delete/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isNotFound()).andDo(result -> {
 						WebResponse<Integer> response = objectMapper
@@ -427,7 +427,7 @@ public class ItemControllerTest {
 		}
 
 		@Test
-		void failFormat() throws Exception {
+		void failDeleteFormat() throws Exception {
 			mocMvc.perform(delete("/api/item/delete/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
 		}

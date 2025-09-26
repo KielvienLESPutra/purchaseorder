@@ -89,7 +89,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failDescription() throws Exception {
+		void failCreateDescription() throws Exception {
 			request.setDescription(null);
 			mocMvc.perform(post("/api/po/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -131,7 +131,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failPurchaseDetail() throws Exception {
+		void failCreatePurchaseDetail() throws Exception {
 			request.setPurchaseOrderDetails(null);
 			mocMvc.perform(post("/api/po/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -177,7 +177,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failCreateNotFound() throws Exception {
 			PurchaseOderDetailModel order3 = new PurchaseOderDetailModel();
 			order3.setItemId(999);
 			order3.setItemQty(1);
@@ -200,7 +200,7 @@ public class PurchaseOrderControllerTest {
 	class getPurchaseOrder {
 
 		@Test
-		void successCreate() throws Exception {
+		void successGet() throws Exception {
 			mocMvc.perform(get("/api/po/findPurchaseOrder/10").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<GetPurchaseOrderResponse> response = objectMapper
@@ -217,7 +217,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failGetNotFound() throws Exception {
 			mocMvc.perform(get("/api/po/findPurchaseOrder/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isNotFound()).andDo(result -> {
 						WebResponse<GetPurchaseOrderResponse> response = objectMapper
@@ -231,7 +231,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failFromat() throws Exception {
+		void failGetFromat() throws Exception {
 			mocMvc.perform(get("/api/po/findPurchaseOrder/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isBadRequest());
 		}
@@ -464,7 +464,7 @@ public class PurchaseOrderControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/po/deletePurchaseOrder/36").accept(MediaType.APPLICATION_JSON))
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/37").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -473,12 +473,12 @@ public class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(36, response.getData());
+						assertEquals(37, response.getData());
 					});
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failDeleteNotFound() throws Exception {
 			mocMvc.perform(delete("/api/po/deletePurchaseOrder/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isNotFound()).andDo(result -> {
 						WebResponse<Integer> response = objectMapper
@@ -492,7 +492,7 @@ public class PurchaseOrderControllerTest {
 		}
 
 		@Test
-		void failFromat() throws Exception {
+		void failDeleteFromat() throws Exception {
 			mocMvc.perform(delete("/api/po/deletePurchaseOrder/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isBadRequest());
 		}

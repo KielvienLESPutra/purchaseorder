@@ -75,7 +75,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failFirstName() throws Exception {
+		void failCreateFirstName() throws Exception {
 			request.setFirstName("");
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -117,7 +117,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failLastName() throws Exception {
+		void failCreateLastName() throws Exception {
 			request.setLastName("");
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -159,7 +159,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failEmail() throws Exception {
+		void failCreateEmail() throws Exception {
 			request.setEmail("");
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -203,7 +203,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failPhone() throws Exception {
+		void failCreatePhone() throws Exception {
 			request.setPhone("");
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -269,7 +269,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failGetNotFound() throws Exception {
 			mocMvc.perform(get("/api/user/finduser/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isNotFound()).andDo(result -> {
 						WebResponse<GetUserResponse> response = objectMapper
@@ -283,7 +283,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failFormat() throws Exception {
+		void failGetFormat() throws Exception {
 			mocMvc.perform(get("/api/user/finduser/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
 		}
@@ -323,7 +323,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failUpdateNotFound() throws Exception {
 			mocMvc.perform(put("/api/user/update/999").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpect(status().isNotFound()).andDo(result -> {
@@ -338,7 +338,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failLastName() throws Exception {
+		void failUpdateLastName() throws Exception {
 			request.setLastName("");
 			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -367,7 +367,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failEmail() throws Exception {
+		void failUpdateEmail() throws Exception {
 			request.setEmail("");
 			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -411,7 +411,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failPhone() throws Exception {
+		void failUpdatePhone() throws Exception {
 			request.setPhone("");
 			mocMvc.perform(put("/api/user/update/14").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
@@ -457,10 +457,10 @@ public class UserControllerTest {
 
 	@Nested
 	class deleteUserTest {
-
+		
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/user/delete/23").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			mocMvc.perform(delete("/api/user/delete/28").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -469,12 +469,12 @@ public class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(23, response.getData());
+						assertEquals(28, response.getData());
 					});
 		}
 
 		@Test
-		void failNotFound() throws Exception {
+		void failDeleteNotFound() throws Exception {
 			mocMvc.perform(delete("/api/user/delete/9999").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isNotFound()).andDo(result -> {
 						WebResponse<GetUserResponse> response = objectMapper
@@ -488,7 +488,7 @@ public class UserControllerTest {
 		}
 
 		@Test
-		void failFormat() throws Exception {
+		void failDeleteFormat() throws Exception {
 			mocMvc.perform(delete("/api/user/delete/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
 		}
