@@ -3,6 +3,10 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,14 +15,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.PurchaseOrderHeader;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
@@ -33,6 +41,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.Purcha
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.ItemRepository;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.PurchaseOrderHeaderRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,14 +56,26 @@ class PurchaseOrderControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
-	@Autowired
-	private PurchaseOrderHeaderRepository purchaseOrderHeaderRepository;
-	
+	@MockitoBean
+	private PurchaseOrderHeaderRepository orderHeaderRepository;
+
+	@MockitoBean
+	private ItemRepository itemRepository;
+
 	@BeforeEach
 	void setupParentTest() {
-		
+		when(itemRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(1)));
+		when(itemRepository.findById(2)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(2)));
+		when(itemRepository.findById(3)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(3)));
+		when(itemRepository.findById(4)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(4)));
+		when(itemRepository.findById(5)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(5)));
+		when(itemRepository.findById(10)).thenReturn(Optional.of(ConstantsDataTest.ItemsMokito.singleItem(10)));
+
+		when(orderHeaderRepository.findById(1))
+				.thenReturn(Optional.of(ConstantsDataTest.PurchaseOrderMockito.singleTransaction()));
+		when(orderHeaderRepository.findAll()).thenReturn(ConstantsDataTest.PurchaseOrderMockito.listTransaction());
 	}
-	
+
 	@Nested
 	class createPurchaseOrder {
 
@@ -81,6 +102,10 @@ class PurchaseOrderControllerTest {
 
 		@Test
 		void successCreate() throws Exception {
+			when(orderHeaderRepository.save(any(PurchaseOrderHeader.class))).then(invocation -> {
+				return invocation.getArgument(0);
+			});
+
 			mocMvc.perform(post("/api/po/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -91,10 +116,19 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
+						assertEquals("Transaction data 1", response.getData().getDescription());
 						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
-						assertEquals(55000, response.getData().getTotalCost());
-						assertEquals(110000, response.getData().getTotalPrice());
+						assertEquals(5500, response.getData().getTotalCost());
+						assertEquals(11000, response.getData().getTotalPrice());
 					});
+
+			ArgumentCaptor<PurchaseOrderHeader> argumentCaptor = ArgumentCaptor.forClass(PurchaseOrderHeader.class);
+			verify(orderHeaderRepository).save(argumentCaptor.capture());
+
+			PurchaseOrderHeader purcasedOrderCreated = argumentCaptor.getValue();
+			assertEquals(0, purcasedOrderCreated.getId());
+			assertEquals("Transaction data 1", purcasedOrderCreated.getDescription());
+			assertEquals(2, purcasedOrderCreated.getPods().size());
 		}
 
 		@Test
@@ -210,7 +244,7 @@ class PurchaseOrderControllerTest {
 
 		@Test
 		void successGet() throws Exception {
-			mocMvc.perform(get("/api/po/findPurchaseOrder/10").accept(MediaType.APPLICATION_JSON))
+			mocMvc.perform(get("/api/po/findPurchaseOrder/1").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<GetPurchaseOrderResponse> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -219,10 +253,14 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
-						assertEquals(55000, response.getData().getTotalCost());
-						assertEquals(110000, response.getData().getTotalPrice());
+						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDescription(),
+								response.getData().getDescription());
+						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
+						assertEquals(15000, response.getData().getTotalCost());
+						assertEquals(7500, response.getData().getTotalPrice());
 					});
+
+			verify(orderHeaderRepository).findById(1);
 		}
 
 		@Test
@@ -258,15 +296,15 @@ class PurchaseOrderControllerTest {
 
 			List<PurchaseOderDetailModel> listOrders = new ArrayList<>();
 			PurchaseOderDetailModel order = new PurchaseOderDetailModel();
-			order.setId(14);
+			order.setId(1);
 			order.setItemId(1);
-			order.setItemQty(5);
+			order.setItemQty(50);
 			listOrders.add(order);
 
 			PurchaseOderDetailModel order2 = new PurchaseOderDetailModel();
-			order2.setId(15);
+			order2.setId(2);
 			order2.setItemId(2);
-			order2.setItemQty(5);
+			order2.setItemQty(50);
 			listOrders.add(order2);
 
 			request.setPurchaseOrderDetails(listOrders);
@@ -274,7 +312,11 @@ class PurchaseOrderControllerTest {
 
 		@Test
 		void successUpdate() throws Exception {
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			when(orderHeaderRepository.save(any(PurchaseOrderHeader.class))).then(invocation -> {
+				return invocation.getArgument(0);
+			});
+
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -284,17 +326,40 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
-						assertEquals(30000, response.getData().getTotalCost());
-						assertEquals(300000, response.getData().getTotalPrice());
+						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
+						assertEquals(50000, response.getData().getTotalCost());
+						assertEquals(100000, response.getData().getTotalPrice());
 						assertEquals("Transaction data update 1", response.getData().getDescription());
 					});
+
+			mocMvc.perform(get("/api/po/findPurchaseOrder/1").accept(MediaType.APPLICATION_JSON))
+					.andExpectAll(status().isOk()).andDo(result -> {
+						WebResponse<GetPurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
+						assertEquals(50000, response.getData().getTotalCost());
+						assertEquals(100000, response.getData().getTotalPrice());
+					});
+
+			ArgumentCaptor<PurchaseOrderHeader> argumentCaptor = ArgumentCaptor.forClass(PurchaseOrderHeader.class);
+			verify(orderHeaderRepository).save(argumentCaptor.capture());
+
+			PurchaseOrderHeader orderSaved = argumentCaptor.getValue();
+			assertEquals(1, orderSaved.getId());
+			assertEquals(5, orderSaved.getPods().size());
+			assertEquals(50000, orderSaved.getTotalCost());
+			assertEquals(100000, orderSaved.getTotalPrice());
 		}
 
 		@Test
 		void failUpdateDescription() throws Exception {
 			request.setDescription(null);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -307,7 +372,7 @@ class PurchaseOrderControllerTest {
 					});
 
 			request.setDescription("");
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -320,7 +385,7 @@ class PurchaseOrderControllerTest {
 					});
 
 			request.setDescription(ConstantsDataTest.EXCEED_CHARACTER);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -336,7 +401,7 @@ class PurchaseOrderControllerTest {
 		@Test
 		void failUpdatePurchaseDetail() throws Exception {
 			request.setPurchaseOrderDetails(null);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -349,7 +414,7 @@ class PurchaseOrderControllerTest {
 					});
 
 			request.setPurchaseOrderDetails(new ArrayList<PurchaseOderDetailModel>());
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -368,7 +433,7 @@ class PurchaseOrderControllerTest {
 			order3.setItemId(1);
 			order3.setItemQty(0);
 			request.getPurchaseOrderDetails().add(order3);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -386,7 +451,7 @@ class PurchaseOrderControllerTest {
 			order4.setItemId(1);
 			order4.setItemQty(1);
 			request.getPurchaseOrderDetails().add(order4);
-			mocMvc.perform(put("/api/po//updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			mocMvc.perform(put("/api/po//updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -398,25 +463,14 @@ class PurchaseOrderControllerTest {
 						assertNull(response.getData());
 					});
 
-			request.getPurchaseOrderDetails().clear();
-			PurchaseOderDetailModel order5 = new PurchaseOderDetailModel();
-			order5.setId(997);
-			order5.setItemId(1);
-			order5.setItemQty(1);
-			request.getPurchaseOrderDetails().add(order5);
-
-			PurchaseOderDetailModel order6 = new PurchaseOderDetailModel();
-			order6.setId(998);
-			order6.setItemId(5);
-			order6.setItemQty(1);
-			request.getPurchaseOrderDetails().add(order6);
-
-			PurchaseOderDetailModel order7 = new PurchaseOderDetailModel();
-			order7.setId(999);
-			order7.setItemId(10);
-			order7.setItemQty(1);
-			request.getPurchaseOrderDetails().add(order7);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			for (int i = 1; i <= 8; i++) {
+				PurchaseOderDetailModel order = new PurchaseOderDetailModel();
+				order.setId(999 - i);
+				order.setItemId(i);
+				order.setItemQty(i);
+				request.getPurchaseOrderDetails().add(order);
+			}
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -429,12 +483,12 @@ class PurchaseOrderControllerTest {
 					});
 
 			request.getPurchaseOrderDetails().clear();
-			PurchaseOderDetailModel order8 = new PurchaseOderDetailModel();
-			order8.setId(999);
-			order8.setItemId(1);
-			order8.setItemQty(1);
-			request.getPurchaseOrderDetails().add(order8);
-			mocMvc.perform(put("/api/po/updatePurchaseOrder/9").accept(MediaType.APPLICATION_JSON)
+			PurchaseOderDetailModel order5 = new PurchaseOderDetailModel();
+			order5.setId(999);
+			order5.setItemId(1);
+			order5.setItemQty(1);
+			request.getPurchaseOrderDetails().add(order5);
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isBadRequest()).andDo(result -> {
 						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
@@ -467,13 +521,15 @@ class PurchaseOrderControllerTest {
 					});
 		}
 	}
-	
+
 	@Nested
 	class deletePurchaseOrder {
 
 		@Test
 		void successDelete() throws Exception {
-			mocMvc.perform(delete("/api/po/deletePurchaseOrder/37").accept(MediaType.APPLICATION_JSON))
+			doNothing().when(orderHeaderRepository).delete(any(PurchaseOrderHeader.class));
+
+			mocMvc.perform(delete("/api/po/deletePurchaseOrder/1").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isOk()).andDo(result -> {
 						WebResponse<Integer> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -482,8 +538,14 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(37, response.getData());
+						assertEquals(1, response.getData());
 					});
+
+			ArgumentCaptor<PurchaseOrderHeader> argumentCaptor = ArgumentCaptor.forClass(PurchaseOrderHeader.class);
+			verify(orderHeaderRepository).delete(argumentCaptor.capture());
+
+			PurchaseOrderHeader deleteTransaction = argumentCaptor.getValue();
+			assertEquals(1, deleteTransaction.getId());
 		}
 
 		@Test
