@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -11,11 +13,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.event.InvocationEvent;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.ConstantsDataTest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.Item;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.entities.User;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.CreateItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
@@ -78,6 +83,10 @@ public class ItemControllerTest {
 
 		@Test
 		void successCreate() throws Exception {
+			when(itemRepository.save(any(Item.class))).then(InvocationEvent -> {
+				return InvocationEvent.getArgument(0);
+			});
+
 			mocMvc.perform(post("/api/item/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -93,6 +102,16 @@ public class ItemControllerTest {
 						assertEquals(10000, response.getData().getPrice());
 						assertEquals(5000, response.getData().getCost());
 					});
+
+			ArgumentCaptor<Item> argumentCaptor = ArgumentCaptor.forClass(Item.class);
+			verify(itemRepository).save(argumentCaptor.capture());
+
+			Item itemCreated = argumentCaptor.getValue();
+			assertEquals(0, itemCreated.getId());
+			assertEquals("Barang a", itemCreated.getName());
+			assertEquals("Barang a grade 1", itemCreated.getDescription());
+			assertEquals(10000, itemCreated.getPrice());
+			assertEquals(5000, itemCreated.getCost());
 		}
 
 		@Test
@@ -235,6 +254,8 @@ public class ItemControllerTest {
 						assertEquals(ConstantsDataTest.ItemsMokito.singleItem().getCost(),
 								response.getData().getCost());
 					});
+
+			verify(itemRepository).findById(1);
 		}
 
 		@Test
@@ -273,6 +294,10 @@ public class ItemControllerTest {
 
 		@Test
 		void successUpdate() throws Exception {
+			when(itemRepository.save(any(Item.class))).thenAnswer(invocationEvent -> {
+				return invocationEvent.getArgument(0);
+			});
+
 			mocMvc.perform(put("/api/item/update/1").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -288,6 +313,31 @@ public class ItemControllerTest {
 						assertEquals(50000, response.getData().getPrice());
 						assertEquals(1000, response.getData().getCost());
 					});
+
+			mocMvc.perform(get("/api/item/finditem/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<GetItemResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals("Barang b", response.getData().getName());
+						assertEquals("Barang b grade 3", response.getData().getDescription());
+						assertEquals(50000, response.getData().getPrice());
+						assertEquals(1000, response.getData().getCost());
+					});
+
+			ArgumentCaptor<Item> argumentCaptor = ArgumentCaptor.forClass(Item.class);
+			verify(itemRepository).save(argumentCaptor.capture());
+
+			Item itemUpdated = argumentCaptor.getValue();
+			assertEquals(1, itemUpdated.getId());
+			assertEquals("Barang b", itemUpdated.getName());
+			assertEquals("Barang b grade 3", itemUpdated.getDescription());
+			assertEquals(50000, itemUpdated.getPrice());
+			assertEquals(1000, itemUpdated.getCost());
 		}
 
 		@Test
@@ -424,9 +474,11 @@ public class ItemControllerTest {
 
 	@Nested
 	class deleteItemTest {
-
+		
 		@Test
 		void successDelete() throws Exception {
+			doNothing().when(itemRepository).delete(any(Item.class));
+
 			mocMvc.perform(delete("/api/item/delete/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
@@ -438,6 +490,12 @@ public class ItemControllerTest {
 						assertNotNull(response.getData());
 						assertEquals(1, response.getData());
 					});
+
+			ArgumentCaptor<Item> argumentCaptor = ArgumentCaptor.forClass(Item.class);
+			verify(itemRepository).delete(argumentCaptor.capture());
+
+			Item itemDelete = argumentCaptor.getValue();
+			assertEquals(1, itemDelete.getId());
 		}
 
 		@Test
