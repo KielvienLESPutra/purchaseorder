@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,6 +19,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -81,6 +85,10 @@ public class UserControllerTest {
 
 		@Test
 		void successCreate() throws Exception {
+			when(userRepository.save(any(User.class))).thenAnswer(incovation -> {
+				return incovation.getArgument(0);
+			});
+			
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -96,6 +104,16 @@ public class UserControllerTest {
 						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
 						assertEquals("085888888888", response.getData().getPhone());
 					});
+			
+			ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
+			verify(userRepository).save(argumentCaptor.capture());
+
+			User userUpdated = argumentCaptor.getValue();
+			assertEquals(0, userUpdated.getId());
+			assertEquals("Kielvien", userUpdated.getFirstName());
+			assertEquals("Lourensius Eka Setia Putra", userUpdated.getLastName());
+			assertEquals("kielvien12345@gmail.com", userUpdated.getEmail());
+			assertEquals("085888888888", userUpdated.getPhone());
 		}
 
 		@Test
@@ -289,9 +307,13 @@ public class UserControllerTest {
 								response.getData().getFirstName());
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getLastName(),
 								response.getData().getLastName());
-						assertEquals(ConstantsDataTest.usersMokito.singleUser().getEmail(), response.getData().getEmail());
-						assertEquals(ConstantsDataTest.usersMokito.singleUser().getPhone(), response.getData().getPhone());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getEmail(),
+								response.getData().getEmail());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getPhone(),
+								response.getData().getPhone());
 					});
+			
+			verify(userRepository).findById(1);
 		}
 
 		@Test
@@ -331,6 +353,10 @@ public class UserControllerTest {
 
 		@Test
 		void successUpdate() throws Exception {
+			when(userRepository.save(any(User.class))).thenAnswer(incovation -> {
+				return incovation.getArgument(0);
+			});
+			
 			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpect(status().isOk()).andDo(result -> {
@@ -361,6 +387,16 @@ public class UserControllerTest {
 						assertEquals("kielvien679@gmail.com", response.getData().getEmail());
 						assertEquals("085871321234", response.getData().getPhone());
 					});
+
+			ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
+			verify(userRepository).save(argumentCaptor.capture());
+
+			User userUpdated = argumentCaptor.getValue();
+			assertEquals(1, userUpdated.getId());
+			assertEquals("Kielvien Lourensius", userUpdated.getFirstName());
+			assertEquals("EkaSetiaPutra", userUpdated.getLastName());
+			assertEquals("kielvien679@gmail.com", userUpdated.getEmail());
+			assertEquals("085871321234", userUpdated.getPhone());
 		}
 
 		@Test
@@ -501,6 +537,8 @@ public class UserControllerTest {
 
 		@Test
 		void successDelete() throws Exception {
+			doNothing().when(userRepository).delete(any(User.class));
+
 			mocMvc.perform(delete("/api/user/delete/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 					.andDo(result -> {
 						WebResponse<Integer> response = objectMapper
@@ -512,6 +550,12 @@ public class UserControllerTest {
 						assertNotNull(response.getData());
 						assertEquals(1, response.getData());
 					});
+
+			ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
+			verify(userRepository).delete(argumentCaptor.capture());
+
+			User userDelete = argumentCaptor.getValue();
+			assertEquals(1, userDelete.getId());
 		}
 
 		@Test
