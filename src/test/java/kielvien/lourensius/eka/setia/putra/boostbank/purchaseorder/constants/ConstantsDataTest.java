@@ -78,7 +78,7 @@ public class ConstantsDataTest {
 			
 			for (int i = 0; i <= 20; i++) {
 				Item item = new Item();
-				item.setId(1);
+				item.setId(i);
 				item.setName("barang " + i);
 				item.setDescription("Barang desc dummy " + 1);
 				item.setPrice(1000);
