@@ -43,11 +43,9 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.Create
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetItemResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.ItemRepository;
-import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Slf4j
 class ItemControllerTest {
 	@Autowired
 	private MockMvc mocMvc;

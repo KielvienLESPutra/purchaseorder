@@ -48,11 +48,9 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.Update
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.ItemRepository;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.repository.PurchaseOrderHeaderRepository;
-import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Slf4j
 class PurchaseOrderControllerTest {
 
 	@Autowired
@@ -122,6 +120,7 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
 						assertEquals("Transaction data 1", response.getData().getDescription());
+						assertNotNull(response.getData().getDateTime());
 						assertEquals(0, response.getData().getId());
 						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(5500, response.getData().getTotalCost());
@@ -262,6 +261,7 @@ class PurchaseOrderControllerTest {
 						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDescription(),
 								response.getData().getDescription());
 						assertEquals(1, response.getData().getId());
+						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDatetime(), response.getData().getDateTime());
 						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(15000, response.getData().getTotalCost());
 						assertEquals(7500, response.getData().getTotalPrice());
@@ -300,6 +300,7 @@ class PurchaseOrderControllerTest {
 		void setup() {
 			request = new UpdatePurchaseOrderRequest();
 			request.setDescription("Transaction data update 1");
+			request.setDateTime("2025-09-30T00:00:00");
 
 			List<PurchaseOderDetailModel> listOrders = new ArrayList<>();
 			PurchaseOderDetailModel order = new PurchaseOderDetailModel();
@@ -337,6 +338,7 @@ class PurchaseOrderControllerTest {
 						assertEquals(50000, response.getData().getTotalCost());
 						assertEquals(100000, response.getData().getTotalPrice());
 						assertEquals("Transaction data update 1", response.getData().getDescription());
+						assertEquals("2025-09-30T00:00", response.getData().getDateTime().toString());
 					});
 
 			mocMvc.perform(get("/api/po/findPurchaseOrder/1").accept(MediaType.APPLICATION_JSON))
@@ -351,6 +353,7 @@ class PurchaseOrderControllerTest {
 						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(50000, response.getData().getTotalCost());
 						assertEquals(100000, response.getData().getTotalPrice());
+						assertEquals("2025-09-30T00:00", response.getData().getDateTime().toString());
 					});
 
 			ArgumentCaptor<PurchaseOrderHeader> argumentCaptor = ArgumentCaptor.forClass(PurchaseOrderHeader.class);
@@ -361,6 +364,7 @@ class PurchaseOrderControllerTest {
 			assertEquals(5, orderUpdated.getPods().size());
 			assertEquals(50000, orderUpdated.getTotalCost());
 			assertEquals(100000, orderUpdated.getTotalPrice());
+			assertEquals("2025-09-30T00:00", orderUpdated.getDatetime().toString());
 		}
 
 		@Test
@@ -597,8 +601,8 @@ class PurchaseOrderControllerTest {
 
 		@Test
 		void getAllPurchaseOrderDefault() throws Exception {
-			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-					.andDo(result -> {
+			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk()).andDo(result -> {
 						WebResponse<List<GetPurchaseOrderResponse>> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});

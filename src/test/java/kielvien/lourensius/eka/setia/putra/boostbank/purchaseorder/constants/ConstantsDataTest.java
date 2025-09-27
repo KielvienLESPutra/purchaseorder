@@ -102,6 +102,7 @@ public class ConstantsDataTest {
 			PurchaseOrderHeader transaction = new PurchaseOrderHeader();
 			transaction.setId(1);
 			transaction.setDescription("Transaksi dummy 1");
+			transaction.setDatetime(LocalDateTime.parse("2025-09-27T18:30:05"));
 			transaction.setTotalCost(15000);
 			transaction.setTotalPrice(7500);
 			transaction.setCreatedBy(Constants.USER_SYSTEM);
@@ -138,6 +139,7 @@ public class ConstantsDataTest {
 				PurchaseOrderHeader transaction = new PurchaseOrderHeader();
 				transaction.setId(i);
 				transaction.setDescription("Transaksi dummy " + i);
+				transaction.setDatetime(LocalDateTime.now());
 				transaction.setTotalCost(15000);
 				transaction.setTotalPrice(7500);
 				transaction.setCreatedBy(Constants.USER_SYSTEM);

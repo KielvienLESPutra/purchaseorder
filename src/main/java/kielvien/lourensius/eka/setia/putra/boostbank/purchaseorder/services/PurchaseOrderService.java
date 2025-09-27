@@ -75,6 +75,7 @@ public class PurchaseOrderService {
 			listOrder.add(orderDetail);
 		}
 
+		purchaseOrderHeader.setDatetime(LocalDateTime.now());
 		purchaseOrderHeader.setTotalCost(totalCostTransaction);
 		purchaseOrderHeader.setTotalPrice(totalPriceTransaction);
 		purchaseOrderHeader.setPods(listOrder);
@@ -82,8 +83,9 @@ public class PurchaseOrderService {
 
 		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(true, purchaseOrderHeader.getPods());
 		return CreatePurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
-				.description(purchaseOrderHeader.getDescription()).totalPrice(purchaseOrderHeader.getTotalPrice())
-				.totalCost(purchaseOrderHeader.getTotalCost()).purchaseOrderDetails(listOrderModel).build();
+				.description(purchaseOrderHeader.getDescription()).dateTime(purchaseOrderHeader.getDatetime())
+				.totalPrice(purchaseOrderHeader.getTotalPrice()).totalCost(purchaseOrderHeader.getTotalCost())
+				.purchaseOrderDetails(listOrderModel).build();
 	}
 
 	public PurchaseOrderHeader getPurchaseOrderById(int purchaseOrderId) {
@@ -96,8 +98,9 @@ public class PurchaseOrderService {
 		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
 
 		return GetPurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
-				.description(purchaseOrderHeader.getDescription()).totalCost(purchaseOrderHeader.getTotalCost())
-				.totalPrice(purchaseOrderHeader.getTotalPrice()).purchaseOrderDetails(listOrderModel).build();
+				.description(purchaseOrderHeader.getDescription()).dateTime(purchaseOrderHeader.getDatetime())
+				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
+				.purchaseOrderDetails(listOrderModel).build();
 	}
 
 	@Transactional
@@ -142,6 +145,7 @@ public class PurchaseOrderService {
 			orderDetail.setItemPrice(totalPriceItem);
 		}
 
+		purchaseOrderHeader.setDatetime(LocalDateTime.parse(request.getDateTime()));
 		purchaseOrderHeader.setDescription(request.getDescription());
 		purchaseOrderHeader.setTotalCost(totalCostTransaction);
 		purchaseOrderHeader.setTotalPrice(totalPriceTransaction);
@@ -149,8 +153,8 @@ public class PurchaseOrderService {
 
 		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
 		return UpdatePurchaseOrderResponse.builder().description(purchaseOrderHeader.getDescription())
-				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
-				.purchaseOrderDetails(listOrderModel).build();
+				.dateTime(purchaseOrderHeader.getDatetime()).totalCost(purchaseOrderHeader.getTotalCost())
+				.totalPrice(purchaseOrderHeader.getTotalPrice()).purchaseOrderDetails(listOrderModel).build();
 	}
 
 	private List<PurchaseOderDetailModel> wrapPurchaseOrderModel(boolean isWrapId,
@@ -190,8 +194,9 @@ public class PurchaseOrderService {
 					List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(true,
 							purchaseOrder.getPods());
 					return GetPurchaseOrderResponse.builder().id(purchaseOrder.getId())
-							.description(purchaseOrder.getDescription()).totalCost(purchaseOrder.getTotalCost())
-							.totalPrice(purchaseOrder.getTotalPrice()).purchaseOrderDetails(listOrderModel).build();
+							.description(purchaseOrder.getDescription()).dateTime(purchaseOrder.getDatetime())
+							.totalCost(purchaseOrder.getTotalCost()).totalPrice(purchaseOrder.getTotalPrice())
+							.purchaseOrderDetails(listOrderModel).build();
 				}).toList();
 
 		return new PageImpl<>(listPurchaseOrder, pageable, pagePurchaseOrder.getTotalElements());
