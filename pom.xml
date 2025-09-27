@@ -81,10 +81,6 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
@@ -100,7 +96,7 @@
 						<configuration>
 							<excludes>
 	                            <exclude>**/models/**</exclude>
-	                            <exclude>**/Constants.class</exclude>
+	                            <exclude>**/constants/**</exclude>
 	                        	<exclude>**/PurchaseorderApplication.class</exclude> 
 	                    	</excludes>
                         </configuration>
