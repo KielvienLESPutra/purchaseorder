@@ -134,7 +134,7 @@ public class ConstantsDataTest {
 			List<PurchaseOrderHeader> listTransaction = new ArrayList<PurchaseOrderHeader>();
 			int counter = 1;
 
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i <= 9; i++) {
 				PurchaseOrderHeader transaction = new PurchaseOrderHeader();
 				transaction.setId(i);
 				transaction.setDescription("Transaksi dummy " + i);

@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -117,6 +122,7 @@ class PurchaseOrderControllerTest {
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
 						assertEquals("Transaction data 1", response.getData().getDescription());
+						assertEquals(0, response.getData().getId());
 						assertEquals(2, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(5500, response.getData().getTotalCost());
 						assertEquals(11000, response.getData().getTotalPrice());
@@ -255,6 +261,7 @@ class PurchaseOrderControllerTest {
 						assertNotNull(response.getData());
 						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDescription(),
 								response.getData().getDescription());
+						assertEquals(1, response.getData().getId());
 						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(15000, response.getData().getTotalCost());
 						assertEquals(7500, response.getData().getTotalPrice());
@@ -566,6 +573,96 @@ class PurchaseOrderControllerTest {
 		void failDeleteFromat() throws Exception {
 			mocMvc.perform(delete("/api/po/deletePurchaseOrder/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpectAll(status().isBadRequest());
+		}
+	}
+
+	@Nested
+	class GetAllPurchaseOrder {
+		private Pageable pageable;
+		private Pageable pageableNull;
+
+		@BeforeEach
+		void setup() {
+			pageable = PageRequest.of(0, 10);
+			Page<PurchaseOrderHeader> pagePurchaseOrder = new PageImpl<>(
+					ConstantsDataTest.PurchaseOrderMockito.listTransaction(), pageable,
+					ConstantsDataTest.PurchaseOrderMockito.listTransaction().size());
+			when(orderHeaderRepository.findAll(pageable)).thenReturn(pagePurchaseOrder);
+
+			pageableNull = PageRequest.of(2, 50);
+			Page<PurchaseOrderHeader> pagePurchaseOrderNull = new PageImpl<>(Collections.emptyList(), pageableNull,
+					ConstantsDataTest.PurchaseOrderMockito.listTransaction().size());
+			when(orderHeaderRepository.findAll(pageableNull)).thenReturn(pagePurchaseOrderNull);
+		}
+
+		@Test
+		void getAllPurchaseOrderDefault() throws Exception {
+			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<List<GetPurchaseOrderResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(orderHeaderRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllPurchaseOrderDefaultPage() throws Exception {
+
+			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON).param("pageSize", "10"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetPurchaseOrderResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(orderHeaderRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllPurchaseOrderDefaultTotalSize() throws Exception {
+
+			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON).param("page", "0"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetPurchaseOrderResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(orderHeaderRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllPurchaseOrderNull() throws Exception {
+
+			mocMvc.perform(get("/api/po/findPurchaseOrder").accept(MediaType.APPLICATION_JSON).param("page", "2")
+					.param("pageSize", "50")).andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetPurchaseOrderResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertEquals(0, response.getData().size());
+					});
+
+			verify(orderHeaderRepository).findAll(pageableNull);
 		}
 	}
 }

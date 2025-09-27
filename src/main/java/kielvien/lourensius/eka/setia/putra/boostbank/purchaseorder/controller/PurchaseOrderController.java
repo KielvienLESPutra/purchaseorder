@@ -1,5 +1,8 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controller;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.constants.Constants;
@@ -16,6 +20,7 @@ import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.Create
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.GetPurchaseOrderResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderRequest;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.UpdatePurchaseOrderResponse;
+import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebPageResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models.WebResponse;
 import kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services.PurchaseOrderService;
 
@@ -44,6 +49,20 @@ public class PurchaseOrderController {
 		return WebResponse.<GetPurchaseOrderResponse>builder().data(response)
 				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
 	}
+	
+	@GetMapping(path = "/findPurchaseOrder", produces = MediaType.APPLICATION_JSON_VALUE)
+	public WebResponse<List<GetPurchaseOrderResponse>> getAllItem(@RequestParam(defaultValue = "0", required = false) Integer page,
+			@RequestParam(defaultValue = "10", required = false) Integer pageSize) {
+		Page<GetPurchaseOrderResponse> response = orderService.findAllPurchaseOrder(page, pageSize);
+		WebPageResponse pages = new WebPageResponse();
+		pages.setCurrentPage(response.getNumber());
+		pages.setTotalPage(response.getTotalPages());
+		pages.setSize(response.getSize());
+
+		return WebResponse.<List<GetPurchaseOrderResponse>>builder().data(response.getContent())
+				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).paging(pages)
+				.build();
+	}
 
 	@PutMapping(path = "/updatePurchaseOrder/{purchaseOrderId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<UpdatePurchaseOrderResponse> updatePurchaseOrder(@PathVariable Integer purchaseOrderId,
@@ -60,4 +79,6 @@ public class PurchaseOrderController {
 		return WebResponse.<Integer>builder().data(purchasedIdDelete).statusCode(Constants.statusCode.OK.getCode())
 				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
+	
+	
 }

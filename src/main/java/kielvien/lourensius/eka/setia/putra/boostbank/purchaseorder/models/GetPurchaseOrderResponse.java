@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class GetPurchaseOrderResponse {
+	private Integer id;
 	private String description;
 	private int totalPrice;
 	private int totalCost;

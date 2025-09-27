@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,9 +95,9 @@ public class PurchaseOrderService {
 		PurchaseOrderHeader purchaseOrderHeader = getPurchaseOrderById(purchaseOrderId);
 		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
 
-		return GetPurchaseOrderResponse.builder().description(purchaseOrderHeader.getDescription())
-				.totalCost(purchaseOrderHeader.getTotalCost()).totalPrice(purchaseOrderHeader.getTotalPrice())
-				.purchaseOrderDetails(listOrderModel).build();
+		return GetPurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
+				.description(purchaseOrderHeader.getDescription()).totalCost(purchaseOrderHeader.getTotalCost())
+				.totalPrice(purchaseOrderHeader.getTotalPrice()).purchaseOrderDetails(listOrderModel).build();
 	}
 
 	@Transactional
@@ -175,5 +179,21 @@ public class PurchaseOrderService {
 
 		purchaseOrderHeaderRepository.delete(purchaseOrderHeader);
 		return purchaseOrderHeader.getId();
+	}
+
+	public Page<GetPurchaseOrderResponse> findAllPurchaseOrder(int page, int pageSize) {
+		Pageable pageable = PageRequest.of(page, pageSize);
+		Page<PurchaseOrderHeader> pagePurchaseOrder = purchaseOrderHeaderRepository.findAll(pageable);
+
+		List<GetPurchaseOrderResponse> listPurchaseOrder = pagePurchaseOrder.getContent().stream()
+				.map(purchaseOrder -> {
+					List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(true,
+							purchaseOrder.getPods());
+					return GetPurchaseOrderResponse.builder().id(purchaseOrder.getId())
+							.description(purchaseOrder.getDescription()).totalCost(purchaseOrder.getTotalCost())
+							.totalPrice(purchaseOrder.getTotalPrice()).purchaseOrderDetails(listOrderModel).build();
+				}).toList();
+
+		return new PageImpl<>(listPurchaseOrder, pageable, pagePurchaseOrder.getTotalElements());
 	}
 }
