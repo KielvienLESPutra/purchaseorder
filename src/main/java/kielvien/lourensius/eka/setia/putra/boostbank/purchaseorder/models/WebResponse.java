@@ -9,4 +9,5 @@ public class WebResponse<T> {
 	private T data;
 	private String statusCode;
 	private String desc;
+	private WebPageResponse paging;
 }
