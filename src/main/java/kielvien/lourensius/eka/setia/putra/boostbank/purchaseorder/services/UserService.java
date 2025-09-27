@@ -81,13 +81,13 @@ public class UserService {
 		return user.getId();
 	}
 
-	public Page<GetUserResponse> findAllUser(int page, int totalSize) {
-		Pageable pageable = PageRequest.of(page, totalSize);
+	public Page<GetUserResponse> findAllUser(int page, int pageSize) {
+		Pageable pageable = PageRequest.of(page, pageSize);
 		Page<User> pageUser = userRepository.findAll(pageable);
 
 		List<GetUserResponse> listUser = pageUser.getContent().stream()
-				.map(user -> GetUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
-						.email(user.getEmail()).phone(user.getPhone()).build())
+				.map(user -> GetUserResponse.builder().id(user.getId()).firstName(user.getFirstName())
+						.lastName(user.getLastName()).email(user.getEmail()).phone(user.getPhone()).build())
 				.toList();
 		return new PageImpl<>(listUser, pageable, pageUser.getTotalElements());
 	}

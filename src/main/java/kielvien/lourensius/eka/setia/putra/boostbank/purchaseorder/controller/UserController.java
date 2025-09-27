@@ -53,8 +53,8 @@ public class UserController {
 	@GetMapping(path = "/finduser", produces = MediaType.APPLICATION_JSON_VALUE)
 	public WebResponse<List<GetUserResponse>> getAllUser(
 			@RequestParam(defaultValue = "0", required = false) Integer page,
-			@RequestParam(defaultValue = "10", required = false) Integer totalSize) {
-		Page<GetUserResponse> response = userService.findAllUser(page, totalSize);
+			@RequestParam(defaultValue = "10", required = false) Integer pageSize) {
+		Page<GetUserResponse> response = userService.findAllUser(page, pageSize);
 		WebPageResponse pages = new WebPageResponse();
 		pages.setCurrentPage(response.getNumber());
 		pages.setTotalPage(response.getTotalPages());

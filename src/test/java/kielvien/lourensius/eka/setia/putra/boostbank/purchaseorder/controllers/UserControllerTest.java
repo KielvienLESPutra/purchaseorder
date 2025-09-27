@@ -623,7 +623,7 @@ class UserControllerTest {
 		@Test
 		void getAllUserDefaultPage() throws Exception {
 
-			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("totalSize", "10"))
+			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("pageSize", "10"))
 					.andExpect(status().isOk()).andDo(result -> {
 						WebResponse<List<GetUserResponse>> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
@@ -660,7 +660,7 @@ class UserControllerTest {
 		void getAllUserNull() throws Exception {
 
 			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("page", "2")
-					.param("totalSize", "50")).andExpect(status().isOk()).andDo(result -> {
+					.param("pageSize", "50")).andExpect(status().isOk()).andDo(result -> {
 						WebResponse<List<GetUserResponse>> response = objectMapper
 								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
 								});
