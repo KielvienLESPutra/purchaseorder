@@ -38,7 +38,7 @@ public class ItemController {
 	}
 
 	@GetMapping(path = "/finditem/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<GetItemResponse> getItem(@PathVariable int itemId) {
+	public WebResponse<GetItemResponse> getItem(@PathVariable Integer itemId) {
 		GetItemResponse response = itemService.findItem(itemId);
 
 		return WebResponse.<GetItemResponse>builder().data(response).statusCode(Constants.statusCode.OK.getCode())
@@ -46,7 +46,7 @@ public class ItemController {
 	}
 
 	@PutMapping(path = "/update/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<UpdateItemResponse> updateItem(@PathVariable int itemId,
+	public WebResponse<UpdateItemResponse> updateItem(@PathVariable Integer itemId,
 			@RequestBody UpdateItemRequest request) {
 		UpdateItemResponse response = itemService.updateItem(itemId, request);
 
@@ -55,7 +55,7 @@ public class ItemController {
 	}
 
 	@DeleteMapping(path = "/delete/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<Integer> deleteItem(@PathVariable int itemId) {
+	public WebResponse<Integer> deleteItem(@PathVariable Integer itemId) {
 		int itemIdDeleted = itemService.deleteItem(itemId);
 
 		return WebResponse.<Integer>builder().data(itemIdDeleted).statusCode(Constants.statusCode.OK.getCode())

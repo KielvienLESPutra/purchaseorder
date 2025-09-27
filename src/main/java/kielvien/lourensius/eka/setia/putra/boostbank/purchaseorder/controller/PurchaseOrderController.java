@@ -38,7 +38,7 @@ public class PurchaseOrderController {
 	}
 
 	@GetMapping(path = "/findPurchaseOrder/{purchaseOrderId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<GetPurchaseOrderResponse> getPurchaseOrder(@PathVariable int purchaseOrderId) {
+	public WebResponse<GetPurchaseOrderResponse> getPurchaseOrder(@PathVariable Integer purchaseOrderId) {
 		GetPurchaseOrderResponse response = orderService.findPurchaseOrder(purchaseOrderId);
 
 		return WebResponse.<GetPurchaseOrderResponse>builder().data(response)
@@ -46,18 +46,18 @@ public class PurchaseOrderController {
 	}
 
 	@PutMapping(path = "/updatePurchaseOrder/{purchaseOrderId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<UpdatePurchaseOrderResponse> updatePurchaseOrder(@PathVariable int purchaseOrderId,
+	public WebResponse<UpdatePurchaseOrderResponse> updatePurchaseOrder(@PathVariable Integer purchaseOrderId,
 			@RequestBody UpdatePurchaseOrderRequest request) {
 		UpdatePurchaseOrderResponse response = orderService.updatePruchaseOrder(purchaseOrderId, request);
 
 		return WebResponse.<UpdatePurchaseOrderResponse>builder().data(response)
 				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
 	}
-	
+
 	@DeleteMapping(path = "/deletePurchaseOrder/{purchaseOrderId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<Integer> delatePurchaseOrder(@PathVariable int purchaseOrderId){
+	public WebResponse<Integer> delatePurchaseOrder(@PathVariable Integer purchaseOrderId) {
 		int purchasedIdDelete = orderService.deletePurchaseOrder(purchaseOrderId);
-		return WebResponse.<Integer>builder().data(purchasedIdDelete)
-				.statusCode(Constants.statusCode.OK.getCode()).desc(Constants.statusCode.OK.getDesc()).build();
+		return WebResponse.<Integer>builder().data(purchasedIdDelete).statusCode(Constants.statusCode.OK.getCode())
+				.desc(Constants.statusCode.OK.getDesc()).build();
 	}
 }
