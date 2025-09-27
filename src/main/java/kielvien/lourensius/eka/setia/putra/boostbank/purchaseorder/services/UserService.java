@@ -49,7 +49,7 @@ public class UserService {
 	public GetUserResponse findUser(int userId) {
 		User user = getUserById(userId);
 
-		return GetUserResponse.builder().firstName(user.getFirstName()).lastName(user.getLastName())
+		return GetUserResponse.builder().id(user.getId()).firstName(user.getFirstName()).lastName(user.getLastName())
 				.phone(user.getPhone()).email(user.getEmail()).build();
 	}
 

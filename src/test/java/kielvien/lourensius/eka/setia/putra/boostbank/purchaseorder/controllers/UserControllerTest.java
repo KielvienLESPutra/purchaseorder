@@ -307,6 +307,8 @@ class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getId(),
+								response.getData().getId());
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getFirstName(),
 								response.getData().getFirstName());
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getLastName(),
