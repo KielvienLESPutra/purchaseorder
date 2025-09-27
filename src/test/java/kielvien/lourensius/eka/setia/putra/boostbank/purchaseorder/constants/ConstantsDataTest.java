@@ -36,11 +36,11 @@ public class ConstantsDataTest {
 		public static List<User> allUser() {
 			List<User> listUser = new ArrayList<User>();
 
-			for (int i = 0; i <= 20; i++) {
+			for (int i = 0; i <= 9; i++) {
 				User user = new User();
 				user.setId(i);
-				user.setFirstName("first name " + 1);
-				user.setLastName("last name " + 1);
+				user.setFirstName("first name " + i);
+				user.setLastName("last name " + i);
 				user.setEmail("myEmail" + i + "@gmail.com");
 				if (i < 10) {
 					user.setPhone("08588888888" + i);
