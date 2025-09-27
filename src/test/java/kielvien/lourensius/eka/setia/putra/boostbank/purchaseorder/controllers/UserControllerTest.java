@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +25,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,7 +63,6 @@ class UserControllerTest {
 	@BeforeEach
 	void setupParentTest() {
 		when(userRepository.findById(1)).thenReturn(Optional.of(ConstantsDataTest.usersMokito.singleUser()));
-		when(userRepository.findAll()).thenReturn(ConstantsDataTest.usersMokito.allUser());
 	}
 
 	@Nested
@@ -87,7 +92,7 @@ class UserControllerTest {
 			when(userRepository.save(any(User.class))).thenAnswer(incovation -> {
 				return incovation.getArgument(0);
 			});
-			
+
 			mocMvc.perform(post("/api/user/create").accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpectAll(status().isOk()).andDo(result -> {
@@ -103,7 +108,7 @@ class UserControllerTest {
 						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
 						assertEquals("085888888888", response.getData().getPhone());
 					});
-			
+
 			ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
 			verify(userRepository).save(argumentCaptor.capture());
 
@@ -311,7 +316,7 @@ class UserControllerTest {
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getPhone(),
 								response.getData().getPhone());
 					});
-			
+
 			verify(userRepository).findById(1);
 		}
 
@@ -355,7 +360,7 @@ class UserControllerTest {
 			when(userRepository.save(any(User.class))).thenAnswer(incovation -> {
 				return incovation.getArgument(0);
 			});
-			
+
 			mocMvc.perform(put("/api/user/update/1").contentType(MediaType.APPLICATION_JSON_VALUE)
 					.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
 					.andExpect(status().isOk()).andDo(result -> {
@@ -575,6 +580,95 @@ class UserControllerTest {
 		void failDeleteFormat() throws Exception {
 			mocMvc.perform(delete("/api/user/delete/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
+		}
+	}
+
+	@Nested
+	class GetAllUser {
+		private Pageable pageable;
+		private Pageable pageableNull;
+		
+		@BeforeEach
+		void setup() {
+			pageable = PageRequest.of(0, 10);
+			Page<User> pageUser = new PageImpl<>(ConstantsDataTest.usersMokito.allUser(), pageable,
+					ConstantsDataTest.usersMokito.allUser().size());
+			when(userRepository.findAll(pageable)).thenReturn(pageUser);
+			
+			pageableNull = PageRequest.of(2, 50);
+			Page<User> pageUserNull = new PageImpl<>(Collections.emptyList(), pageableNull,
+					ConstantsDataTest.usersMokito.allUser().size());
+			when(userRepository.findAll(pageableNull)).thenReturn(pageUserNull);
+		}
+		
+		@Test
+		void getAllUserDefault() throws Exception {
+			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<List<GetUserResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(userRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllUserDefaultPage() throws Exception {
+
+			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("totalSize", "10"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetUserResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(userRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllUserDefaultTotalSize() throws Exception {
+
+			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("page", "0"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetUserResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(userRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllUserNull() throws Exception {
+
+			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON).param("page", "2")
+					.param("totalSize", "50")).andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetUserResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertEquals(0, response.getData().size());
+					});
+
+			verify(userRepository).findAll(pageableNull);
 		}
 	}
 }
