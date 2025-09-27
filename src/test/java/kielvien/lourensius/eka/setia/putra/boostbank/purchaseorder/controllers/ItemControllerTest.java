@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -517,6 +523,95 @@ class ItemControllerTest {
 		void failDeleteFormat() throws Exception {
 			mocMvc.perform(delete("/api/item/delete/abc").accept(MediaType.APPLICATION_JSON))
 					.andExpect(status().isBadRequest());
+		}
+	}
+	
+	@Nested
+	class GetAllItem {
+		private Pageable pageable;
+		private Pageable pageableNull;
+
+		@BeforeEach
+		void setup() {
+			pageable = PageRequest.of(0, 10);
+			Page<Item> pageItem = new PageImpl<>(ConstantsDataTest.ItemsMokito.listItem(), pageable,
+					ConstantsDataTest.ItemsMokito.listItem().size());
+			when(itemRepository.findAll(pageable)).thenReturn(pageItem);
+
+			pageableNull = PageRequest.of(2, 50);
+			Page<Item> pageItemNull = new PageImpl<>(Collections.emptyList(), pageableNull,
+					ConstantsDataTest.ItemsMokito.listItem().size());
+			when(itemRepository.findAll(pageableNull)).thenReturn(pageItemNull);
+		}
+
+		@Test
+		void getAllItemDefault() throws Exception {
+			mocMvc.perform(get("/api/item/finditem").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+					.andDo(result -> {
+						WebResponse<List<GetItemResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(itemRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllItemDefaultPage() throws Exception {
+
+			mocMvc.perform(get("/api/item/finditem").accept(MediaType.APPLICATION_JSON).param("pageSize", "10"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetItemResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(itemRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllItemDefaultTotalSize() throws Exception {
+
+			mocMvc.perform(get("/api/item/finditem").accept(MediaType.APPLICATION_JSON).param("page", "0"))
+					.andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetItemResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertNotNull(response.getData());
+						assertEquals(10, response.getData().size());
+					});
+
+			verify(itemRepository).findAll(pageable);
+		}
+
+		@Test
+		void getAllItemNull() throws Exception {
+
+			mocMvc.perform(get("/api/item/finditem").accept(MediaType.APPLICATION_JSON).param("page", "2")
+					.param("pageSize", "50")).andExpect(status().isOk()).andDo(result -> {
+						WebResponse<List<GetItemResponse>> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
+						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
+						assertEquals(0, response.getData().size());
+					});
+
+			verify(itemRepository).findAll(pageableNull);
 		}
 	}
 }

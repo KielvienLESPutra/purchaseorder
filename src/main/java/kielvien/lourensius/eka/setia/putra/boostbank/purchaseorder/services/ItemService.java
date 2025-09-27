@@ -1,5 +1,11 @@
 package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.services;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,5 +82,17 @@ public class ItemService {
 
 		itemRepository.delete(item);
 		return item.getId();
+	}
+
+	public Page<GetItemResponse> findAllItem(int page, int pageSize) {
+		Pageable pageable = PageRequest.of(page, pageSize);
+		Page<Item> pageItem = itemRepository.findAll(pageable);
+
+		List<GetItemResponse> listItem = pageItem.getContent().stream()
+				.map(item -> GetItemResponse.builder().id(item.getId()).name(item.getName())
+						.description(item.getDescription()).cost(item.getCost()).price(item.getPrice()).build())
+				.toList();
+
+		return new PageImpl<GetItemResponse>(listItem, pageable, pageItem.getTotalElements());
 	}
 }

@@ -78,7 +78,7 @@ public class ConstantsDataTest {
 		public static List<Item> listItem() {
 			List<Item> listItem = new ArrayList<Item>();
 
-			for (int i = 0; i <= 20; i++) {
+			for (int i = 0; i <= 9; i++) {
 				Item item = new Item();
 				item.setId(i);
 				item.setName("barang " + i);
