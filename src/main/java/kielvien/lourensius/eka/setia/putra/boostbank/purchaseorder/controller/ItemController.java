@@ -51,7 +51,7 @@ public class ItemController {
 	}
 
 	@GetMapping(path = "/finditem", produces = MediaType.APPLICATION_JSON_VALUE)
-	public WebResponse<List<GetItemResponse>> getItem(@RequestParam(defaultValue = "0", required = false) Integer page,
+	public WebResponse<List<GetItemResponse>> getAllItem(@RequestParam(defaultValue = "0", required = false) Integer page,
 			@RequestParam(defaultValue = "10", required = false) Integer pageSize) {
 		Page<GetItemResponse> response = itemService.findAllItem(page, pageSize);
 		WebPageResponse pages = new WebPageResponse();
