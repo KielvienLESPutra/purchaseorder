@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CreatePurchaseOrderResponse {
-	private int id;
+	private Integer id;
 	private String description;
 	private int totalPrice;
 	private int totalCost;
