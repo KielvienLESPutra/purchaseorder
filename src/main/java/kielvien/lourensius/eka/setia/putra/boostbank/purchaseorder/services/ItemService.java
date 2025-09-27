@@ -93,6 +93,6 @@ public class ItemService {
 						.description(item.getDescription()).cost(item.getCost()).price(item.getPrice()).build())
 				.toList();
 
-		return new PageImpl<GetItemResponse>(listItem, pageable, pageItem.getTotalElements());
+		return new PageImpl<>(listItem, pageable, pageItem.getTotalElements());
 	}
 }
