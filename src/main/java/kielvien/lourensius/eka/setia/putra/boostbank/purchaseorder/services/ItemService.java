@@ -35,7 +35,7 @@ public class ItemService {
 		item.setCost(request.getCost());
 		itemRepository.save(item);
 
-		return CreateItemResponse.builder().name(item.getName()).description(item.getDescription())
+		return CreateItemResponse.builder().id(item.getId()).name(item.getName()).description(item.getDescription())
 				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 
@@ -51,8 +51,8 @@ public class ItemService {
 	public GetItemResponse findItem(int itemId) {
 		Item item = getItemById(itemId);
 
-		return GetItemResponse.builder().name(item.getName()).description(item.getDescription()).price(item.getPrice())
-				.cost(item.getCost()).build();
+		return GetItemResponse.builder().id(item.getId()).name(item.getName()).description(item.getDescription())
+				.price(item.getPrice()).cost(item.getCost()).build();
 	}
 
 	@Transactional

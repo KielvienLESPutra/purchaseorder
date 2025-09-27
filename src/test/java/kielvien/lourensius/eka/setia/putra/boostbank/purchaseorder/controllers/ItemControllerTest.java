@@ -95,6 +95,7 @@ class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
+						assertEquals(0, response.getData().getId());
 						assertEquals("Barang a", response.getData().getName());
 						assertEquals("Barang a grade 1", response.getData().getDescription());
 						assertEquals(10000, response.getData().getPrice());
@@ -243,6 +244,8 @@ class ItemControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
+						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getId(),
+								response.getData().getId());
 						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getName(),
 								response.getData().getName());
 						assertEquals(ConstantsDataTest.ItemsMokito.singleItem(1).getDescription(),
@@ -472,7 +475,7 @@ class ItemControllerTest {
 
 	@Nested
 	class deleteItemTest {
-		
+
 		@Test
 		void successDelete() throws Exception {
 			doNothing().when(itemRepository).delete(any(Item.class));

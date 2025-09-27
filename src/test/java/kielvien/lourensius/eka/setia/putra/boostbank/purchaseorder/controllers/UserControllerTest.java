@@ -103,6 +103,7 @@ class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
+						assertEquals(0, response.getData().getId());
 						assertEquals("Kielvien", response.getData().getFirstName());
 						assertEquals("Lourensius Eka Setia Putra", response.getData().getLastName());
 						assertEquals("kielvien12345@gmail.com", response.getData().getEmail());
@@ -307,8 +308,7 @@ class UserControllerTest {
 						assertEquals(Constants.statusCode.OK.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.OK.getDesc(), response.getDesc());
 						assertNotNull(response.getData());
-						assertEquals(ConstantsDataTest.usersMokito.singleUser().getId(),
-								response.getData().getId());
+						assertEquals(ConstantsDataTest.usersMokito.singleUser().getId(), response.getData().getId());
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getFirstName(),
 								response.getData().getFirstName());
 						assertEquals(ConstantsDataTest.usersMokito.singleUser().getLastName(),
@@ -589,20 +589,20 @@ class UserControllerTest {
 	class GetAllUser {
 		private Pageable pageable;
 		private Pageable pageableNull;
-		
+
 		@BeforeEach
 		void setup() {
 			pageable = PageRequest.of(0, 10);
 			Page<User> pageUser = new PageImpl<>(ConstantsDataTest.usersMokito.allUser(), pageable,
 					ConstantsDataTest.usersMokito.allUser().size());
 			when(userRepository.findAll(pageable)).thenReturn(pageUser);
-			
+
 			pageableNull = PageRequest.of(2, 50);
 			Page<User> pageUserNull = new PageImpl<>(Collections.emptyList(), pageableNull,
 					ConstantsDataTest.usersMokito.allUser().size());
 			when(userRepository.findAll(pageableNull)).thenReturn(pageUserNull);
 		}
-		
+
 		@Test
 		void getAllUserDefault() throws Exception {
 			mocMvc.perform(get("/api/user/finduser").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
