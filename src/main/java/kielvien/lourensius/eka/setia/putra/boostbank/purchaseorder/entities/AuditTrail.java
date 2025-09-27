@@ -30,12 +30,10 @@ public class AuditTrail {
 	private void onCreated() {
 		this.createdDatetime = LocalDateTime.now();
 		this.createdBy = Constants.USER_SYSTEM;
-		this.updatedDatetime = LocalDateTime.now();
-		this.updatedBy = Constants.USER_SYSTEM;
 	}
 	
 	@PreUpdate
-	private void onDeleted() {
+	private void onUpdated() {
 		this.updatedDatetime = LocalDateTime.now();
 		this.updatedBy = Constants.USER_SYSTEM;
 	}

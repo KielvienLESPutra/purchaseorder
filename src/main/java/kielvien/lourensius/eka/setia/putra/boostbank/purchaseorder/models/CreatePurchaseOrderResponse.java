@@ -3,9 +3,9 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models;
 import java.util.List;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
 public class CreatePurchaseOrderResponse {
 	private Integer id;

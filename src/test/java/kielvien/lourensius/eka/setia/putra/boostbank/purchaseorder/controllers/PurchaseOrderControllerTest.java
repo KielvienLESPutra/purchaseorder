@@ -356,11 +356,11 @@ class PurchaseOrderControllerTest {
 			ArgumentCaptor<PurchaseOrderHeader> argumentCaptor = ArgumentCaptor.forClass(PurchaseOrderHeader.class);
 			verify(orderHeaderRepository).save(argumentCaptor.capture());
 
-			PurchaseOrderHeader orderSaved = argumentCaptor.getValue();
-			assertEquals(1, orderSaved.getId());
-			assertEquals(5, orderSaved.getPods().size());
-			assertEquals(50000, orderSaved.getTotalCost());
-			assertEquals(100000, orderSaved.getTotalPrice());
+			PurchaseOrderHeader orderUpdated = argumentCaptor.getValue();
+			assertEquals(1, orderUpdated.getId());
+			assertEquals(5, orderUpdated.getPods().size());
+			assertEquals(50000, orderUpdated.getTotalCost());
+			assertEquals(100000, orderUpdated.getTotalPrice());
 		}
 
 		@Test

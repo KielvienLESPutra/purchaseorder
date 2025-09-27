@@ -6,9 +6,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class CreatePurchaseOrderRequest {
 	@NotBlank(message = "cannot be null or empty")
 	@Size(max = 500, message = "character cannot more then 500")
