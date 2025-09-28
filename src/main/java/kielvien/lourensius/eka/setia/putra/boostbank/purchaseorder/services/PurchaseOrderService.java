@@ -95,7 +95,7 @@ public class PurchaseOrderService {
 
 	public GetPurchaseOrderResponse findPurchaseOrder(int purchaseOrderId) {
 		PurchaseOrderHeader purchaseOrderHeader = getPurchaseOrderById(purchaseOrderId);
-		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(false, purchaseOrderHeader.getPods());
+		List<PurchaseOderDetailModel> listOrderModel = wrapPurchaseOrderModel(true, purchaseOrderHeader.getPods());
 
 		return GetPurchaseOrderResponse.builder().id(purchaseOrderHeader.getId())
 				.description(purchaseOrderHeader.getDescription()).dateTime(purchaseOrderHeader.getDatetime())
