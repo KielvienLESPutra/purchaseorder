@@ -3,6 +3,7 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -261,7 +262,8 @@ class PurchaseOrderControllerTest {
 						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDescription(),
 								response.getData().getDescription());
 						assertEquals(1, response.getData().getId());
-						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDatetime(), response.getData().getDateTime());
+						assertEquals(ConstantsDataTest.PurchaseOrderMockito.singleTransaction().getDatetime(),
+								response.getData().getDateTime());
 						assertEquals(5, response.getData().getPurchaseOrderDetails().size());
 						assertEquals(15000, response.getData().getTotalCost());
 						assertEquals(7500, response.getData().getTotalPrice());
@@ -508,6 +510,73 @@ class PurchaseOrderControllerTest {
 
 						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
 						assertEquals(Constants.statusCode.REFERENCE_NOT_FOUND.getDesc(), response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.getPurchaseOrderDetails().clear();
+			PurchaseOderDetailModel order6 = new PurchaseOderDetailModel();
+			order6.setId(999);
+			order6.setItemQty(1);
+			request.getPurchaseOrderDetails().add(order6);
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("purchaseOrderDetails[0].itemId: cannot be null", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.getPurchaseOrderDetails().clear();
+			PurchaseOderDetailModel order7 = new PurchaseOderDetailModel();
+			order7.setId(999);
+			order7.setItemId(1);
+			request.getPurchaseOrderDetails().add(order7);
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("purchaseOrderDetails[0].itemQty: cannot less then 1", response.getDesc());
+						assertNull(response.getData());
+					});
+		}
+
+		@Test
+		void failUpdateDateTime() throws Exception {
+			request.setDateTime(null);
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertEquals("dateTime: cannot be null or empty", response.getDesc());
+						assertNull(response.getData());
+					});
+
+			request.setDateTime("");
+			mocMvc.perform(put("/api/po/updatePurchaseOrder/1").accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+					.andExpectAll(status().isBadRequest()).andDo(result -> {
+						WebResponse<UpdatePurchaseOrderResponse> response = objectMapper
+								.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+								});
+
+						assertEquals(Constants.statusCode.BAD_REQUEST.getCode(), response.getStatusCode());
+						assertTrue(
+								("dateTime: cannot be null or empty, dateTime: Date must be in format yyyy-MM-ddTHH:mm[:ss]"
+										.equals(response.getDesc())
+										|| "dateTime: Date must be in format yyyy-MM-ddTHH:mm[:ss], dateTime: cannot be null or empty"
+												.equals(response.getDesc())));
 						assertNull(response.getData());
 					});
 		}
