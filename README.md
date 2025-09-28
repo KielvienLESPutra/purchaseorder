@@ -109,6 +109,7 @@ Berikut ini adalah struktur project yang dibuat:
 |               └── AuditTrailTest
 ├── pom.xml
 ├── Kielvien Lourensius Eka Setia Putra.postman_collection.json
+├── Create_Database_Script.sql
 └── README.md
 ```
 
@@ -126,7 +127,7 @@ Pada struktur project diatas berikut ini penjelasannya :
 - Package controllers dalam folder test berisikan unit test dengan endpoint untuk mengecek logic code.
 - Package repository dalam folder test berisikan unit test khusus untuk repository untuk mengecek logic code.
 
-Pada bagian root folder berisikan pom.xml, readme.md, dan collection postman.
+Pada bagian root folder berisikan pom.xml, readme.md, script.sql untuk membuat db dan collection postman. Untuk langkah pembuatan atau prepare database dapat dilihat pada bagian [Persiapan PostgreSQL](#persiapan-postgres)
 
 ## Schema Database
 
@@ -664,7 +665,7 @@ hal yang perlu disiapkan antara sebelum menjalankan antara lain:
 
 ### Persiapan PostgreSQL
 
-Untuk persiapan database dengan menggunakan PostgreSQL, script ada pada file scriptSQL.sql di root folder. Berikut ini tahapannya menggunakan terminal:
+Untuk persiapan database dengan menggunakan PostgreSQL, script ada pada file Create_Database_Script.sql di root folder. Berikut ini tahapannya menggunakan terminal:
 
 - Jalankan PostgreSQL dan masuk ke PostgreSQL dangan printah dibawah ini.
 
