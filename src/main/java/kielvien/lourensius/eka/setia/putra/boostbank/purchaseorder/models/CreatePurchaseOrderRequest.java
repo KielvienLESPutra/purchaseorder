@@ -8,9 +8,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class CreatePurchaseOrderRequest {
 	@NotBlank(message = "cannot be null or empty")
 	@Size(max = 500, message = "character cannot more then 500")

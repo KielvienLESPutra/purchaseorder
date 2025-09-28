@@ -3,9 +3,11 @@ package kielvien.lourensius.eka.setia.putra.boostbank.purchaseorder.models;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @Builder
 public class UpdateItemResponse {
 	private String name;
