@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: po-db
+    environment:
+      POSTGRES_DB: kielvien_lourensius_esp
+      POSTGRES_USER: kielvien12345
+      POSTGRES_PASSWORD: boostbank12345
+    networks:
+      purchase-order-network:
+        ipv4_address: 172.20.0.2
+    # volumes:
+    #   - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+  service:
+    build:
+      context: .
+    container_name: po-service
+    networks:
+      purchase-order-network:
+        ipv4_address: 172.20.0.3
+    environment:
+      - database_url=172.20.0.2
+      - port_purchase_order=8080
+      - database_port=5432
+      - database_name_dev=kielvien12345
+      - database_password_dev=boostbank12345
+      - minumum_connection=1
+      - maximum_connection=5
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - db
+
+# volumes:
+#   db_data: var/lib/postgresql/data
+
+networks:
+  purchase-order-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

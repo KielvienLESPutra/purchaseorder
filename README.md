@@ -24,6 +24,7 @@
   - [Test](#test)
   - [Package](#package)
   - [Run](#run)
+  - [Docker](#docker)
 - [Kontak](#kontak)
 
 ## Deskripsi
@@ -747,6 +748,26 @@ mvn spring-boot:run
 ```
 
 Untuk mencoba endpoint yang telah dijalankan silahkan untuk import file Kielvien Lourensius Eka Setia Putra.postman_collection.json pada postman. Untuk persiapan postman silahkan buka dan isi base_url pada variables dengan localhost:8080 atau kalau diganti port pada properties file mengikut port tersebut.
+
+### Docker
+
+Pada root directory terdapat file Dockerfile. Untuk membuat kontainer dapat dilakukan dengan cara berikut dibawah ini.
+
+```
+docker build -t purchase-order:latest .
+```
+
+kemudian untuk run image yang telah dibuat dengan cara
+
+```
+docker run --name purchase-order -d -p 8080:8080 purchase-order:latest
+```
+
+untuk run keseluruhan beserta database dapat menggunakan perintah berikut dibawah ini.
+
+```
+docker compose up -d
+```
 
 ## Kontak
 
