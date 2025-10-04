@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.ConstraintViolationException;
@@ -34,6 +35,17 @@ public class RestErrorController {
 					.statusCode(Constants.statusCode.NOT_FOUND.getCode()).desc(exception.getReason()).build();
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<WebResponse<Object>> methodArgumentException(MethodArgumentTypeMismatchException exception) {
+		exception.printStackTrace();
+		log.error("Error message {}", exception.getMessage());
+
+		WebResponse<Object> response = WebResponse.builder().data(null)
+				.statusCode(Constants.statusCode.BAD_REQUEST.getCode()).desc(Constants.statusCode.BAD_REQUEST.getDesc())
+				.build();
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
 	@ExceptionHandler(Exception.class)
